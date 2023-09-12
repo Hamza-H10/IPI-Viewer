@@ -808,7 +808,7 @@ namespace InclinoView
                 return;
 
             // Define the default color of the brush as black.
-            var myBrush = System.Drawing.Brushes.Chocolate;
+            var myBrush = System.Drawing.Brushes.Black;
 
             if (bhIndex >= 0)
             {

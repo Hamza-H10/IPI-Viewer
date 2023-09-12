@@ -31,6 +31,12 @@ namespace InclinoView
 
             // create a new database connection: with file data.sqlite
             sqlite_conn = new SQLiteConnection("Data Source=" + Application.LocalUserAppDataPath + @"\data.sqlite;Version=3;");
+            
+            // Example: Get the path to the My Documents folder
+            /*string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Console.WriteLine("My Documents Path: " + myCustomFolderPath);
+            sqlite_conn = new SQLiteConnection("Data Source=" + myCustomFolderPath + "\\data.sqlite;Version=3;");
+*/
 
             // open the connection:
             sqlite_conn.Open();
@@ -202,6 +208,7 @@ namespace InclinoView
         public static string GetBoreholeDirectory(ref short bhnum)
         {
             return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
+            //return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
         }
     }
 }
