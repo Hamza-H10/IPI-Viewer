@@ -22,21 +22,28 @@ namespace InclinoView
         }
 
         private static SQLiteConnection sqlite_conn;
+         
         private static SQLiteCommand sqlite_cmd;
         private static SQLiteDataReader sqlite_datareader;
         private static SQLiteDataAdapter sqliteAdapter;
+        private static string myCustomFolderPath;
 
         public static void OpenDatabase()
         {
 
             // create a new database connection: with file data.sqlite
-            sqlite_conn = new SQLiteConnection("Data Source=" + Application.LocalUserAppDataPath + @"\data.sqlite;Version=3;");
-            
+            //sqlite_conn = new SQLiteConnection("Data Source=" + Application.LocalUserAppDataPath + @"\data.sqlite;Version=3;");
+
             // Example: Get the path to the My Documents folder
-            /*string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Console.WriteLine("My Documents Path: " + myCustomFolderPath);
             sqlite_conn = new SQLiteConnection("Data Source=" + myCustomFolderPath + "\\data.sqlite;Version=3;");
-*/
+
+            /*string appFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+            string dbFilePath = Path.Combine(appFolderPath, "data.sqlite");
+            sqlite_conn = new SQLiteConnection("Data Source=" + dbFilePath + ";Version=3;");*/
+
+
 
             // open the connection:
             sqlite_conn.Open();
@@ -48,7 +55,6 @@ namespace InclinoView
               [Id]       INTEGER NOT NULL PRIMARY KEY,
               [SITENAME] VARCHAR(256)  NULL,
               [LOCATION] VARCHAR(256)  NULL,
-              
               [DEPTH]    DOUBLE(10,4) NOT NULL,
               [BASEFILE] VARCHAR(256))";
             //[DateTime] DATETIME  null,
@@ -207,8 +213,8 @@ namespace InclinoView
         }
         public static string GetBoreholeDirectory(ref short bhnum)
         {
-            return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
-            //return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
+            //return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
+            return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
         }
     }
 }

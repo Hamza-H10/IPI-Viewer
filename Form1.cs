@@ -219,21 +219,21 @@ namespace InclinoView
                 // lstboreholes.selecteditem is a CSV file
             }
         }
-        
 
-        private void DisplayReport(bool bnLoadText = false)
+
+        private void DisplayReport(bool bnLoadText = true)
         {
             // Define variables to store data and calculations
             var ds = new DataTable(); // Create a DataTable to hold the report data
             var strBaseData = default(string[][]); // Store data from a base file
             var bnBaseFilePresent = default(bool); // Flag indicating if a base file is present
             short i;
-            /*float A;
-            float B;
+            float ValA;
+            float ValB;
             String DataTime;
             int Sensor;
-            int Depth;*/
-            float ValA;
+            int Depth;
+            /*float ValA;
             float ValB;
             float absValA = 0f; // Accumulated absolute values of A
             float absValB = 0f; // Accumulated absolute values of B
@@ -242,7 +242,7 @@ namespace InclinoView
             float bsAbsValA = 0f; // Accumulated absolute values of A from the base file
             float bsAbsValB = 0f; // Accumulated absolute values of B from the base file
             float deviationA;
-            float deviationB;
+            float deviationB;*/
 
             // Reset labels and prepare for report generation
 
@@ -275,6 +275,18 @@ namespace InclinoView
             // Construct the path to the selected data file
             string argFileName = Conversions.ToString(Operators.ConcatenateObject(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\", lstBoreholes.SelectedItem));
             string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
+            
+            if (strData != null)
+            {
+                foreach (string[] row in strData)
+                {
+                    Console.WriteLine(string.Join(", ", row));
+                }
+            }
+            else
+            {
+                Console.WriteLine("Failed to read CSV data.");
+            }
 
             // Create columns in the DataTable to hold the report data
             ds.Columns.Add("DateTime", Type.GetType("System.Single"));
@@ -283,32 +295,41 @@ namespace InclinoView
             ds.Columns.Add("A", Type.GetType("System.Single"));
             ds.Columns.Add("B", Type.GetType("System.Single"));
 
-            ds.Columns.Add("Mean A", Type.GetType("System.Single"));
-            ds.Columns.Add("Mean B", Type.GetType("System.Single"));
+            /* ds.Columns.Add("Mean A", Type.GetType("System.Single"));
+             ds.Columns.Add("Mean B", Type.GetType("System.Single"));
 
-            ds.Columns.Add("Absolute A", Type.GetType("System.Single"));
-            ds.Columns.Add("Absolute B", Type.GetType("System.Single"));
+             ds.Columns.Add("Absolute A", Type.GetType("System.Single"));
+             ds.Columns.Add("Absolute B", Type.GetType("System.Single"));
 
-            ds.Columns.Add("Deviation A", Type.GetType("System.Single"));
-            ds.Columns.Add("Deviation B", Type.GetType("System.Single"));
+             ds.Columns.Add("Deviation A", Type.GetType("System.Single"));
+             ds.Columns.Add("Deviation B", Type.GetType("System.Single"));*/
 
             // Process data rows
             var loopTo = (short)(strData.Length - 1);
             for (i = 4; i <= loopTo; i++)
             {
                 // Calculate values for A and B
-                ValA = (float.Parse(strData[i][1]) - float.Parse(strData[i][2])) / 2f;
+                /*ValA = (float.Parse(strData[i][1]) - float.Parse(strData[i][2])) / 2f;
                 ValB = (float.Parse(strData[i][3]) - float.Parse(strData[i][4])) / 2f;
                 ValA = (float)Math.Round((double)ValA, 2);
+                ValB = (float)Math.Round((double)ValB, 2);*/
+                ValA = (float.Parse(strData[i][3]));
+                ValB = (float.Parse(strData[i][4]));
+                ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);
+                Console.WriteLine(ValA + " " + ValB);
 
+                //my change remove this 
+                ds.Rows.Add(new object[] {float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB });
+                
+                //float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
                 // Accumulate absolute values for A and B
-                absValA += ValA;
+                /*absValA += ValA;
                 absValB += ValB;
                 absValA = (float)Math.Round((double)absValA, 2);
-                absValB = (float)Math.Round((double)absValB, 2);
+                absValB = (float)Math.Round((double)absValB, 2);*/
 
-                if (bnBaseFilePresent)
+                /*if (bnBaseFilePresent)
                 {
                     // Calculate values for A and B from the base file
                     bsValA = (float.Parse(strBaseData[i][1]) - float.Parse(strBaseData[i][2])) / 2f;
@@ -333,90 +354,112 @@ namespace InclinoView
                 {
                     // Add a row to the DataTable with calculated values (without deviations)
                     ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB });
-                }
+                }*/
+                
+
             }
 
             if (bnLoadText)
-            {
-                // Prepare text data for loading (if needed)
-                int row;
-                string strItem;
-
-                var loopTo1 = (short)(ds.Columns.Count - 1);
-                for (i = 0; i <= loopTo1; i++)
                 {
-                    if (i > 6)
-                    {
-                        bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(12);
-                    }
-                    else
-                    {
-                        bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(8);
-                    }
-                }
-                bsTextPrintData += Constants.vbCrLf;
-                bsTextPrintData += "".PadRight(104, '=') + Constants.vbCrLf;
+                    // Prepare text data for loading (if needed)
+                    int row;
+                    string strItem;
 
-                var loopTo2 = ds.Rows.Count - 1;
-                for (row = 0; row <= loopTo2; row++)
-                {
-                    var loopTo3 = (short)(ds.Columns.Count - 1);
-                    for (i = 0; i <= loopTo3; i++)
+                    var loopTo1 = (short)(ds.Columns.Count - 1);
+                    Console.WriteLine(loopTo1);
+                    for (i = 0; i <= loopTo1; i++)
                     {
-                        strItem = "";
-                        if (ds.Rows[row][i] is not DBNull)
-                        {
-                            strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
-                        }
                         if (i > 6)
                         {
-                            bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
+                            bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(12);
+                            Console.WriteLine(bsTextPrintData);
                         }
                         else
                         {
-                            bsTextPrintData += " " + strItem.PadLeft(6) + " ";
+                            bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(8);
+                            Console.WriteLine(bsTextPrintData);
                         }
                     }
                     bsTextPrintData += Constants.vbCrLf;
-                }
-            }
-            else
-            {
-                // Display the report in a DataGridView (if not loading text)
-                DataGridView1.DataSource = ds;
-                DataGridView1.Visible = true;
+                    bsTextPrintData += "".PadRight(104, '=') + Constants.vbCrLf;
 
-                var loopTo4 = (short)(DataGridView1.Columns.Count - 1);
-                for (i = 0; i <= loopTo4; i++)
+                    var loopTo2 = ds.Rows.Count - 1;
+                    Console.WriteLine(loopTo2);
+                    for (row = 0; row <= loopTo2; row++)
+                    {
+                        var loopTo3 = (short)(ds.Columns.Count - 1);
+                        Console.WriteLine(loopTo3);
+                        for (i = 0; i <= loopTo3; i++)
+                        {
+                            strItem = "";
+                            if (ds.Rows[row][i] is not DBNull)//DBNull cannot be inherited
+                            {
+                                strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
+                                Console.WriteLine(strItem);
+                            }
+                            if (i > 6)
+                            {
+                                bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
+                            }
+                            else
+                            {
+                                bsTextPrintData += " " + strItem.PadLeft(6) + " ";
+                            }
+                        }
+                        bsTextPrintData += Constants.vbCrLf;
+                    Console.WriteLine(bsTextPrintData);
+                    }
+                }
+                else
                 {
-                    if (i > 6)
-                    {
-                        DataGridView1.Columns[i].Width = 80;
-                    }
-                    else
-                    {
-                        DataGridView1.Columns[i].Width = 60;
-                    }
-                }
+                    // Display the report in a DataGridView (if not loading text)
+                    DataGridView1.DataSource = ds;
+                    DataGridView1.Visible = true;
 
-                // Configure DataGridView appearance
-                DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
-                DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    var loopTo4 = (short)(DataGridView1.Columns.Count - 1);
+                    Console.WriteLine(loopTo4);
+                    for (i = 0; i <= loopTo4; i++)
+                    {
+                        if (i > 6)
+                        {
+                            DataGridView1.Columns[i].Width = 100;
+                        }
+                        else
+                        {
+                            DataGridView1.Columns[i].Width = 100;
+                        }
+                    }
+
+                    // Configure DataGridView appearance
+                    DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
+                    DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+
+                    // Change the background color of the entire DataGridView
+                    DataGridView1.BackgroundColor = Color.LightGray;
+
+                    // Change the background color of the rows
+                    DataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
+                    DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+
+                    // Change the background color of selected cells
+                    DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Blue;
+                    DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
                 // Enable or disable ToolStrip buttons based on conditions
                 if (!ToolStrip2.Enabled)
-                    ToolStrip2.Enabled = true;
-                // PrintToolStripButton.Enabled = True
-                tbAxisX.Enabled = false;
-                tbAxisY.Enabled = false;
-                tbZoom.Enabled = false;
-                tbGraphType.Enabled = false;
+                        ToolStrip2.Enabled = true;
+
+                //PrintToolStripButton.Enabled = True
+
+                    tbAxisX.Enabled = false;
+                    tbAxisY.Enabled = false;
+                    tbZoom.Enabled = false;
+                      tbGraphType.Enabled = false;
+                }
             }
-        }
-
-
-
-        private void DisplayGraph()
+        
+            private void DisplayGraph()
         {
             var cnt = default(short);
             double maxX = 50.0d;
@@ -460,6 +503,7 @@ namespace InclinoView
             var seriesCollection = new SeriesCollection();
 
             ResetLabels();
+
             CartesianChart1.BackColor = System.Drawing.Color.White;
             // CartesianChart1.Zoom = ZoomingOptions.X
             CartesianChart1.Series.Clear();
@@ -814,11 +858,11 @@ namespace InclinoView
             {
                 if (CultureInfo.CurrentCulture.CompareInfo.Compare(listBH[bhIndex].BaseFile ?? "", lstBoreholes.Items[e.Index].ToString() ?? "", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                 {
-                    myBrush = System.Drawing.Brushes.Purple;
+                    myBrush = System.Drawing.Brushes.OrangeRed;
                 }
                 else
                 {
-                    myBrush = System.Drawing.Brushes.Coral;
+                    myBrush = System.Drawing.Brushes.Cyan;
                 }
             }
 
@@ -873,6 +917,11 @@ namespace InclinoView
                 e.Graphics.DrawImage(MyChartPanel, p1);
                 e.HasMorePages = false;
             }
+        }
+
+        private void lstBoreholes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
