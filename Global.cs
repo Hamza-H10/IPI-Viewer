@@ -73,7 +73,7 @@ namespace InclinoView
         public static bool AddBorehole(ref BoreHole bh)
         {
             short result;
-            //******************************************888888
+            //******************************************
             //yaha change kiya 'or replce'. pehle nhi tha
             sqlite_cmd.CommandText = @" INSERT OR REPLACE INTO Boreholes (
                 [Id], [SITENAME], [LOCATION], [DEPTH], [BASEFILE] )

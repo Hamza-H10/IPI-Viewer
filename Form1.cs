@@ -143,7 +143,7 @@ namespace InclinoView
                         }
                         else
                         {
-                            // Catch 4 poarameters for the new borehole
+                            // Catch 4 parameters for the new borehole
                             short borehole_num;
                             float depth;
                             string strDirName;
@@ -198,7 +198,6 @@ namespace InclinoView
                 bhIndex = -1;
                 ReloadList();
             }
-
         }
 
         private void lstBoreholes_DoubleClick(object sender, EventArgs e)
@@ -220,17 +219,37 @@ namespace InclinoView
             }
         }
 
+        /*private string FormatDateTime(object value)
+        {
+            if (value is DBNull)
+            {
+                return string.Empty; // Return an empty string for DBNull
+            }
+            else if (value is DateTime)
+            {
+                DateTime dateTimeValue = (DateTime)value;
+                return dateTimeValue.ToString("MM/dd/yyyy HH:mm:ss"); // Format the DateTime value
+            }
+            else
+            {
+                return value.ToString(); // Return other types as is
+            }
+        }*/
 
-        private void DisplayReport(bool bnLoadText = true)
+        private void DisplayReport(bool bnLoadText = false)
         {
             // Define variables to store data and calculations
             var ds = new DataTable(); // Create a DataTable to hold the report data
             var strBaseData = default(string[][]); // Store data from a base file
             var bnBaseFilePresent = default(bool); // Flag indicating if a base file is present
+            
+            //var dateTimeColumn = ds.Columns.Add("DateTime", typeof(DateTime));
+            //dateTimeColumn.ExtendedProperties.Add("Format", "MM/dd/yyyy HH:mm:ss"); // Specify your desired date/time format
+            
             short i;
             float ValA;
             float ValB;
-            String DataTime;
+            DateTime DataTime;
             int Sensor;
             int Depth;
             /*float ValA;
@@ -275,8 +294,8 @@ namespace InclinoView
             // Construct the path to the selected data file
             string argFileName = Conversions.ToString(Operators.ConcatenateObject(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\", lstBoreholes.SelectedItem));
             string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
-            
-            if (strData != null)
+ //-----------------------------------------------------------------------------           
+            /*if (strData != null)//this is for checking the strData
             {
                 foreach (string[] row in strData)
                 {
@@ -286,10 +305,10 @@ namespace InclinoView
             else
             {
                 Console.WriteLine("Failed to read CSV data.");
-            }
-
+            }*/
+ //--------------------------------------------------------------------------------
             // Create columns in the DataTable to hold the report data
-            ds.Columns.Add("DateTime", Type.GetType("System.Single"));
+            ds.Columns.Add("DateTime", typeof(DateTime)); // Add a DateTime column
             ds.Columns.Add("Sensor", Type.GetType("System.Single"));
             ds.Columns.Add("Depth", Type.GetType("System.Single"));
             ds.Columns.Add("A", Type.GetType("System.Single"));
@@ -318,9 +337,12 @@ namespace InclinoView
                 ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);
                 Console.WriteLine(ValA + " " + ValB);
-
+//-------------------------------------------------------------------------
                 //my change remove this 
-                ds.Rows.Add(new object[] {float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB });
+                //ds.Rows.Add(new object[] {float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), ValA, ValB });
+                ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4])});
+                //-------------------------------------------------------------------------               
+                
                 
                 //float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
                 // Accumulate absolute values for A and B
@@ -348,17 +370,16 @@ namespace InclinoView
                     deviationB = (float)Math.Round((double)(absValB - bsAbsValB), 2);
 
                     // Add a row to the DataTable with all calculated values
-                    ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB, deviationA, deviationB });
+                     ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB, deviationA, deviationB });
                 }
                 else
                 {
                     // Add a row to the DataTable with calculated values (without deviations)
                     ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB });
                 }*/
-                
-
             }
 
+              
             if (bnLoadText)
                 {
                     // Prepare text data for loading (if needed)
@@ -375,7 +396,7 @@ namespace InclinoView
                             Console.WriteLine(bsTextPrintData);
                         }
                         else
-                        {
+                        {  
                             bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(8);
                             Console.WriteLine(bsTextPrintData);
                         }
@@ -397,17 +418,21 @@ namespace InclinoView
                                 strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
                                 Console.WriteLine(strItem);
                             }
-                            if (i > 6)
+                        if (i > 6)
                             {
                                 bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
-                            }
-                            else
+                                //bsTextPrintData += "  " + FormatDateTime(ds.Rows[row][i]).PadLeft(8) + "  ";
+
+                        }
+                        else
                             {
                                 bsTextPrintData += " " + strItem.PadLeft(6) + " ";
-                            }
+                            //bsTextPrintData += " " + FormatDateTime(ds.Rows[row][i]).PadLeft(6) + " ";
+
                         }
+                    }
                         bsTextPrintData += Constants.vbCrLf;
-                    Console.WriteLine(bsTextPrintData);
+                    //Console.WriteLine(bsTextPrintData);
                     }
                 }
                 else
@@ -415,20 +440,27 @@ namespace InclinoView
                     // Display the report in a DataGridView (if not loading text)
                     DataGridView1.DataSource = ds;
                     DataGridView1.Visible = true;
-
+                    
+                //Set column widths
                     var loopTo4 = (short)(DataGridView1.Columns.Count - 1);
                     Console.WriteLine(loopTo4);
                     for (i = 0; i <= loopTo4; i++)
                     {
-                        if (i > 6)
-                        {
-                            DataGridView1.Columns[i].Width = 100;
-                        }
-                        else
-                        {
-                            DataGridView1.Columns[i].Width = 100;
-                        }
+                    DataGridView1.Columns[i].Width = (i > 6) ? 100 : 100;
+                    /*if (i > 6)
+                    {
+                        DataGridView1.Columns[i].Width = 100;
                     }
+                    else
+                    {
+                        DataGridView1.Columns[i].Width = 100;
+                    }*/
+                    // Set the DateTime format for the "DateTime" column
+                    if (DataGridView1.Columns[i].Name == "DateTime")
+                    {
+                        DataGridView1.Columns[i].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+                    }
+                }
 
                     // Configure DataGridView appearance
                     DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
@@ -448,15 +480,15 @@ namespace InclinoView
 
                 // Enable or disable ToolStrip buttons based on conditions
                 if (!ToolStrip2.Enabled)
-                        ToolStrip2.Enabled = true;
+                    ToolStrip2.Enabled = true;
 
                 //PrintToolStripButton.Enabled = True
 
-                    tbAxisX.Enabled = false;
-                    tbAxisY.Enabled = false;
-                    tbZoom.Enabled = false;
-                      tbGraphType.Enabled = false;
-                }
+                tbAxisX.Enabled = false;
+                tbAxisY.Enabled = false;
+                tbZoom.Enabled = false;
+                tbGraphType.Enabled = false;
+            }
             }
         
             private void DisplayGraph()
@@ -561,6 +593,7 @@ namespace InclinoView
                     Values = new ChartValues<ObservablePoint>(),
                     Fill = System.Windows.Media.Brushes.Transparent
                 };
+
                 short i = 0;
                 float Val;
                 float absVal = 0f;
@@ -651,7 +684,7 @@ namespace InclinoView
             }
             CartesianChart1.Series = seriesCollection;
         }
-
+//-----------------------------------------------------------------
         private void tbAxisX_Click(object sender, EventArgs e)
         {
             if (tbAxisY.Checked == true)
@@ -852,7 +885,7 @@ namespace InclinoView
                 return;
 
             // Define the default color of the brush as black.
-            var myBrush = System.Drawing.Brushes.Black;
+            var myBrush = System.Drawing.Brushes.Beige;
 
             if (bhIndex >= 0)
             {
