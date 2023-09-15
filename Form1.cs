@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using System.Xml.Linq;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
@@ -242,10 +243,10 @@ namespace InclinoView
             var ds = new DataTable(); // Create a DataTable to hold the report data
             var strBaseData = default(string[][]); // Store data from a base file
             var bnBaseFilePresent = default(bool); // Flag indicating if a base file is present
-            
-            //var dateTimeColumn = ds.Columns.Add("DateTime", typeof(DateTime));
+
+          // var dateTimeColumn = ds.Columns.Add("DateTime", typeof(DateTime));
             //dateTimeColumn.ExtendedProperties.Add("Format", "MM/dd/yyyy HH:mm:ss"); // Specify your desired date/time format
-            
+
             short i;
             float ValA;
             float ValB;
@@ -294,7 +295,7 @@ namespace InclinoView
             // Construct the path to the selected data file
             string argFileName = Conversions.ToString(Operators.ConcatenateObject(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\", lstBoreholes.SelectedItem));
             string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
- //-----------------------------------------------------------------------------           
+            //-----------------------------------------------------------------------------           
             /*if (strData != null)//this is for checking the strData
             {
                 foreach (string[] row in strData)
@@ -306,9 +307,10 @@ namespace InclinoView
             {
                 Console.WriteLine("Failed to read CSV data.");
             }*/
- //--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
             // Create columns in the DataTable to hold the report data
-            ds.Columns.Add("DateTime", typeof(DateTime)); // Add a DateTime column
+            //ds.Columns.Add("DateTime", typeof(DateTime)); // Add a DateTime column
+            ds.Columns.Add("DateTime", Type.GetType("System.Single"));
             ds.Columns.Add("Sensor", Type.GetType("System.Single"));
             ds.Columns.Add("Depth", Type.GetType("System.Single"));
             ds.Columns.Add("A", Type.GetType("System.Single"));
@@ -332,21 +334,67 @@ namespace InclinoView
                 ValB = (float.Parse(strData[i][3]) - float.Parse(strData[i][4])) / 2f;
                 ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);*/
-                ValA = (float.Parse(strData[i][3]));
+
+                /*ValA = (float.Parse(strData[i][3]));
                 ValB = (float.Parse(strData[i][4]));
                 ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);
-                Console.WriteLine(ValA + " " + ValB);
-//-------------------------------------------------------------------------
-                //my change remove this 
+                Console.WriteLine(ValA + " " + ValB);*/
+
                 //ds.Rows.Add(new object[] {float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), ValA, ValB });
-                ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4])});
+                //-------------------------------------------------------------------------
+                //my change 
+                 
+                ds.Rows.Add(new object[] { int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]) });
+            // DateTime.Parse(strData[i][0]),
+ /*               
+                if (DateTime.TryParseExact(strData[i][0], "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
+                {
+                    // Successfully parsed the DateTime, now you can use it
+                    ds.Rows.Add(new object[] { dateTime, int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]) });
+                }
+                else
+                {
+                    // Handle parsing failure
+                    Console.WriteLine($"Failed to parse DateTime: {strData[i][0]}");
+                }*/
+
                 //-------------------------------------------------------------------------               
-                
-                
-                //float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
+                //---------------------------------------------------------------------------------------------------------------------------------------------
+                //IN THIS THE PROBLEM IS INDENTIFIED WHILE PARSING THE DATETIME FROM THE CSV FILE STRING
+                // Define the expected DateTime format
+                /*                string dateFormat = "dd/MM/yyyy HH:mm";
+
+                                if (strData != null)
+                                {
+                                    foreach (string[] row in strData)
+                                    {
+                                        // Assuming strData[i][0] contains the date and time string
+                                        string dateTimeString = row[0];
+
+                                        // Check if the string matches the expected format before parsing
+                                        if (DateTime.TryParseExact(dateTimeString, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
+                                        {
+                                            // Successfully parsed the DateTime
+                                            Console.WriteLine($"Parsed DateTime: {dateTime}");
+                                        }
+                                        else
+                                        {
+                                            // Handle parsing failure
+                                            Console.WriteLine($"Failed to parse cell: {dateTimeString}");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Failed to read CSV data.");
+                                }*/
+                //------------------------------------------------------------------------------------------------------------------------------
+
+
+                /*//float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
                 // Accumulate absolute values for A and B
-                /*absValA += ValA;
+                absValA += ValA;
                 absValB += ValB;
                 absValA = (float)Math.Round((double)absValA, 2);
                 absValB = (float)Math.Round((double)absValB, 2);*/
@@ -379,73 +427,73 @@ namespace InclinoView
                 }*/
             }
 
-              
+
             if (bnLoadText)
+            {
+                // Prepare text data for loading (if needed)
+                int row;
+                string strItem;
+
+                var loopTo1 = (short)(ds.Columns.Count - 1);
+                Console.WriteLine(loopTo1);
+                for (i = 0; i <= loopTo1; i++)
                 {
-                    // Prepare text data for loading (if needed)
-                    int row;
-                    string strItem;
-
-                    var loopTo1 = (short)(ds.Columns.Count - 1);
-                    Console.WriteLine(loopTo1);
-                    for (i = 0; i <= loopTo1; i++)
+                    if (i > 6)
                     {
-                        if (i > 6)
-                        {
-                            bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(12);
-                            Console.WriteLine(bsTextPrintData);
-                        }
-                        else
-                        {  
-                            bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(8);
-                            Console.WriteLine(bsTextPrintData);
-                        }
+                        bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(12);
+                        Console.WriteLine(bsTextPrintData);
                     }
-                    bsTextPrintData += Constants.vbCrLf;
-                    bsTextPrintData += "".PadRight(104, '=') + Constants.vbCrLf;
-
-                    var loopTo2 = ds.Rows.Count - 1;
-                    Console.WriteLine(loopTo2);
-                    for (row = 0; row <= loopTo2; row++)
+                    else
                     {
-                        var loopTo3 = (short)(ds.Columns.Count - 1);
-                        Console.WriteLine(loopTo3);
-                        for (i = 0; i <= loopTo3; i++)
+                        bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(8);
+                        Console.WriteLine(bsTextPrintData);
+                    }
+                }
+                bsTextPrintData += Constants.vbCrLf;
+                bsTextPrintData += "".PadRight(104, '=') + Constants.vbCrLf;
+
+                var loopTo2 = ds.Rows.Count - 1;
+                Console.WriteLine(loopTo2);
+                for (row = 0; row <= loopTo2; row++)
+                {
+                    var loopTo3 = (short)(ds.Columns.Count - 1);
+                    Console.WriteLine(loopTo3);
+                    for (i = 0; i <= loopTo3; i++)
+                    {
+                        strItem = "";
+                        if (ds.Rows[row][i] is not DBNull)//DBNull cannot be inherited
                         {
-                            strItem = "";
-                            if (ds.Rows[row][i] is not DBNull)//DBNull cannot be inherited
-                            {
-                                strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
-                                Console.WriteLine(strItem);
-                            }
+                            strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
+                            Console.WriteLine(strItem);
+                        }
                         if (i > 6)
-                            {
-                                bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
-                                //bsTextPrintData += "  " + FormatDateTime(ds.Rows[row][i]).PadLeft(8) + "  ";
+                        {
+                            bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
+                            //bsTextPrintData += "  " + FormatDateTime(ds.Rows[row][i]).PadLeft(8) + "  ";
 
                         }
                         else
-                            {
-                                bsTextPrintData += " " + strItem.PadLeft(6) + " ";
+                        {
+                            bsTextPrintData += " " + strItem.PadLeft(6) + " ";
                             //bsTextPrintData += " " + FormatDateTime(ds.Rows[row][i]).PadLeft(6) + " ";
 
                         }
                     }
-                        bsTextPrintData += Constants.vbCrLf;
+                    bsTextPrintData += Constants.vbCrLf;
                     //Console.WriteLine(bsTextPrintData);
-                    }
                 }
-                else
-                {
-                    // Display the report in a DataGridView (if not loading text)
-                    DataGridView1.DataSource = ds;
-                    DataGridView1.Visible = true;
-                    
+            }
+            else
+            {
+                // Display the report in a DataGridView (if not loading text)
+                DataGridView1.DataSource = ds;
+                DataGridView1.Visible = true;
+
                 //Set column widths
-                    var loopTo4 = (short)(DataGridView1.Columns.Count - 1);
-                    Console.WriteLine(loopTo4);
-                    for (i = 0; i <= loopTo4; i++)
-                    {
+                var loopTo4 = (short)(DataGridView1.Columns.Count - 1);
+                Console.WriteLine(loopTo4);
+                for (i = 0; i <= loopTo4; i++)
+                {
                     DataGridView1.Columns[i].Width = (i > 6) ? 100 : 100;
                     /*if (i > 6)
                     {
@@ -462,21 +510,21 @@ namespace InclinoView
                     }
                 }
 
-                    // Configure DataGridView appearance
-                    DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
-                    DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                // Configure DataGridView appearance
+                DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
+                DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 
-                    // Change the background color of the entire DataGridView
-                    DataGridView1.BackgroundColor = Color.LightGray;
+                // Change the background color of the entire DataGridView
+                DataGridView1.BackgroundColor = Color.LightGray;
 
-                    // Change the background color of the rows
-                    DataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
-                    DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+                // Change the background color of the rows
+                DataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
+                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightPink;
 
-                    // Change the background color of selected cells
-                    DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Blue;
-                    DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
+                // Change the background color of selected cells
+                DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Blue;
+                DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
                 // Enable or disable ToolStrip buttons based on conditions
                 if (!ToolStrip2.Enabled)
@@ -489,15 +537,18 @@ namespace InclinoView
                 tbZoom.Enabled = false;
                 tbGraphType.Enabled = false;
             }
-            }
-        
-            private void DisplayGraph()
-        {
-            var cnt = default(short);
-            double maxX = 50.0d;
-            var strBaseData = default(string[][]);
+        }
+        //---------------------------------------------------------------------------------------------------------------      
+    
+        private void DisplayGraph()
+                {
+                    // Initialize variables
+                    var cnt = default(short); // Counter for labels
+                    double maxX = 50.0d; // Maximum X value for the chart
+                    var strBaseData = default(string[][]); // Array to store base data
 
-            var axisSectionSeries = new SectionsCollection
+                    // Create an empty collection for chart axis sections
+                    var axisSectionSeries = new SectionsCollection
             {
                 new AxisSection()
                 {
@@ -508,102 +559,137 @@ namespace InclinoView
                 }
             };
 
-            var YAxis = new Axis()
-            {
-                LabelFormatter = new Func<double, string>(x => x.ToString() + "m"),
-                Title = "Depth (Mtr)",
-                Separator = new Separator()
-                {
-                    IsEnabled = true,
-                    StrokeThickness = 1d
-                }
-            };
-            var XAxis = new Axis()
-            {
-                Title = "Displacement (mm)",
-                LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
-                MaxValue = 80d,
-                MinValue = -80,
-                Separator = new Separator()
-                {
-                    IsEnabled = true,
-                    Step = 10d,
-                    StrokeThickness = 1d
-                },
-                Sections = axisSectionSeries
-            };
-            var seriesCollection = new SeriesCollection();
-
-            ResetLabels();
-
-            CartesianChart1.BackColor = System.Drawing.Color.White;
-            // CartesianChart1.Zoom = ZoomingOptions.X
-            CartesianChart1.Series.Clear();
-            CartesianChart1.AxisX.Clear();
-            CartesianChart1.AxisY.Clear();
-            CartesianChart1.AxisY.Add(YAxis);
-            CartesianChart1.AxisX.Add(XAxis);
-            if (DataGridView1.Visible)
-                DataGridView1.Visible = false;
-            if (CartesianChart1.Visible == false)
-                CartesianChart1.Visible = true;
-            if (!ToolStrip2.Enabled)
-                ToolStrip2.Enabled = true;
-            // PrintToolStripButton.Enabled = False
-            tbAxisX.Enabled = true;
-            tbAxisY.Enabled = true;
-            tbZoom.Enabled = true;
-            tbGraphType.Enabled = true;
-
-            if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-            {
-                if (listBH[bhIndex].BaseFile is null | string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
-                {
-                    Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                    return;
-                }
-                string strFile = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
-                if (!System.IO.File.Exists(strFile))
-                {
-                    Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                    return;
-                }
-                strBaseData = GlobalCode.ReadCSVFile(ref strFile);
-            }
-
-            foreach (string lstItem in lstBoreholes.SelectedItems)
-            {
-                string argFileName = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + lstItem;
-                string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
-                string strFile = lstItem.Split('.').First().Replace("_", ":");
-
-                if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-                {
-                    if (strData.Length != strBaseData.Length)
+                    // Create Y-axis with label formatter and styling
+                    var YAxis = new Axis()
                     {
-                        Interaction.MsgBox("Scale or length mismatch between Base file and Selected file.", Constants.vbExclamation | Constants.vbOKOnly, "Graph");
-                        return;
-                    }
-                }
-                // Dim invertedYMapper
-                // = LiveCharts.Configurations.Mappers.Xy(Of ObservablePoint)().X(Function(point) point.Y).Y(Function(point) -point.X)
-                var lineSeries = new VerticalLineSeries()
-                {
-                    Title = "[" + strFile + "]",
-                    Values = new ChartValues<ObservablePoint>(),
-                    Fill = System.Windows.Media.Brushes.Transparent
-                };
+                        LabelFormatter = new Func<double, string>(x => x.ToString() + "m"),
+                        Title = "Depth (Mtr)",
+                        Separator = new Separator()
+                        {
+                            IsEnabled = true,
+                            StrokeThickness = 1d
+                        }
+                    };
 
-                short i = 0;
-                float Val;
-                float absVal = 0f;
-                float Val2;
-                float absVal2 = 0f;
-                var loopTo = (short)(strData.Length - 1);
-                for (i = 4; i <= loopTo; i++)
+                    // Create X-axis with label formatter, range, and styling
+                    var XAxis = new Axis()
+                    {
+                        Title = "Displacement (mm)",
+                        LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
+                        MaxValue = 80d,
+                        MinValue = -80,
+                        Separator = new Separator()
+                        {
+                            IsEnabled = true,
+                            Step = 10d,
+                            StrokeThickness = 1d
+                        },
+                        Sections = axisSectionSeries // Add axis sections
+                    };
+
+                    // Create a collection to hold chart series
+                    var seriesCollection = new SeriesCollection();
+
+                    // Reset labels and configure chart
+                    ResetLabels();
+
+                    CartesianChart1.BackColor = System.Drawing.Color.White;
+                    // CartesianChart1.Zoom = ZoomingOptions.X
+                    CartesianChart1.Series.Clear();
+                    CartesianChart1.AxisX.Clear();
+                    CartesianChart1.AxisY.Clear();
+                    CartesianChart1.AxisY.Add(YAxis);
+                    CartesianChart1.AxisX.Add(XAxis);
+
+                    if (DataGridView1.Visible)
+                        DataGridView1.Visible = false;
+
+                    if (CartesianChart1.Visible == false)
+                        CartesianChart1.Visible = true;
+
+                    if (!ToolStrip2.Enabled)
+                        ToolStrip2.Enabled = true;
+                    // PrintToolStripButton.Enabled = False
+
+                    tbAxisX.Enabled = true;
+                    tbAxisY.Enabled = true;
+                    tbZoom.Enabled = true;
+                    tbGraphType.Enabled = true;
+
+                    // Check if the selected graph type is "Deviation"
+                    if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                    {
+                        // Check if a base file is selected
+                        if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+                        {
+                            Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                            return;
+                        }
+
+                        // Get the path to the base file
+                        string strFile = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+
+                        // Check if the base file exists
+                        if (!System.IO.File.Exists(strFile))
+                        {
+                            Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                            return;
+                        }
+
+                        // Read the base data from the base file
+                        strBaseData = GlobalCode.ReadCSVFile(ref strFile);
+                    }
+
+                    // Loop through selected items
+                    foreach (string lstItem in lstBoreholes.SelectedItems)
+                    {
+                        // Get the path to the current file
+                        string argFileName = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + lstItem;
+                        string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
+                        string strFile = lstItem.Split('.').First().Replace("_", ":");
+
+                        /*// Check if the graph type is "Deviation" and data lengths match
+                        if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                        {
+                            if (strData.Length != strBaseData.Length)
+                            {
+                                Interaction.MsgBox("Scale or length mismatch between Base file and Selected file.", Constants.vbExclamation | Constants.vbOKOnly, "Graph");
+                                return;
+                            }
+                        }*/
+
+                        //old comments
+                        // Dim invertedYMapper
+                        // = LiveCharts.Configurations.Mappers.Xy(Of ObservablePoint)().X(Function(point) point.Y).Y(Function(point) -point.X)
+
+                        // Create a new line series for the chart
+                        var lineSeries = new VerticalLineSeries()
+                        {
+                            Title = "[" + strFile + "]",
+                            Values = new ChartValues<ObservablePoint>(),
+                            Fill = System.Windows.Media.Brushes.Transparent
+                        };
+//--------------------------------------------------------------------
+                //float Val;
+                //Val = float.Parse(strData[i][3 + _axisValue]);
+//--------------------------------------------------------------------
+                        short i = 0;
+                        float Val;
+                        float absVal = 0f;
+                        float Val2;
+                        float absVal2 = 0f;
+                        var loopTo = (short)(strData.Length - 1);
+                Console.WriteLine(loopTo);
+                        // Populate line series with data points
+                        for (i = 4; i <= loopTo; i++)
                 {
-                    Val = (float.Parse(strData[i][1 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
-                    if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
+                    //Val = float.Parse(strData[i][3 + _axisValue]);
+
+                    Val = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+
+
+                    /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                     {
                         Val += absVal;
                         absVal = Val;
@@ -616,75 +702,87 @@ namespace InclinoView
                         Val2 += absVal2;
                         absVal2 = Val2;
                         Val = absVal - absVal2;
-                    }
-                    if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
+                    }*/
+
+                    /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
                     {
                         maxX = Math.Ceiling((double)Math.Abs(Val));
-                    }
+                    }*/
+
                     lineSeries.Values.Add(new ObservablePoint((double)Val, (double)-float.Parse(strData[i][0])));
-
-                }
-
-                maxX += maxX * 0.2d;
-                maxX = Math.Ceiling(maxX);
-                XAxis.MinValue = -maxX;
-                XAxis.MaxValue = maxX;
-                if (maxX > 150d)
-                    XAxis.Separator.Step = 40d;
-
-                // set the inverted mapping...
-                // lineSeries.Configuration = invertedYMapper
-
-                seriesCollection.Add(lineSeries);
-
-                // correct the labels
-                // XAxis.LabelFormatter = Function(x) (x * -1).ToString() & "m"
-
-                // Dim tooltip = New DefaultTooltip With {
-                // .SelectionMode = TooltipSelectionMode.OnlySender
-                // }
-                // CartesianChart1.DataTooltip = tooltip
-                switch (cnt)
-                {
-                    case 0:
-                        {
-                            Label1.Text = strFile;
-                            break;
                         }
-                    case 1:
+
+                        maxX += maxX * 0.2d;
+                        maxX = Math.Ceiling(maxX);
+                        XAxis.MinValue = -maxX;
+                        XAxis.MaxValue = maxX;
+
+                        //old comments
+                        // set the inverted mapping...
+                        // lineSeries.Configuration = invertedYMapper
+
+
+                        if (maxX > 150d)
+                            XAxis.Separator.Step = 40d;
+
+                        seriesCollection.Add(lineSeries);
+
+                        //old comments
+                        // correct the labels
+                        // XAxis.LabelFormatter = Function(x) (x * -1).ToString() & "m"
+
+                        // Dim tooltip = New DefaultTooltip With {
+                        // .SelectionMode = TooltipSelectionMode.OnlySender
+                        // }
+                        // CartesianChart1.DataTooltip = tooltip
+
+
+                        // Set labels
+                        switch (cnt)
                         {
-                            Label2.Text = strFile;
-                            break;
+                            case 0:
+                                {
+                                    Label1.Text = strFile;
+                                    break;
+                                }
+                            case 1:
+                                {
+                                    Label2.Text = strFile;
+                                    break;
+                                }
+                            case 2:
+                                {
+                                    Label3.Text = strFile;
+                                    break;
+                                }
+                            case 3:
+                                {
+                                    Label4.Text = strFile;
+                                    break;
+                                }
+                            case 4:
+                                {
+                                    Label5.Text = strFile;
+                                    break;
+                                }
                         }
-                    case 2:
-                        {
-                            Label3.Text = strFile;
-                            break;
-                        }
-                    case 3:
-                        {
-                            Label4.Text = strFile;
-                            break;
-                        }
-                    case 4:
-                        {
-                            Label5.Text = strFile;
-                            break;
-                        }
-                }
-                cnt = (short)(cnt + 1);
-            }
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
-            {
-                Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
-            }
-            else
-            {
-                Label6.Text = "";
-            }
-            CartesianChart1.Series = seriesCollection;
-        }
-//-----------------------------------------------------------------
+                        cnt = (short)(cnt + 1);
+                    }
+
+                    // Update Label6 based on graph type
+                    if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
+                    {
+                        Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
+                    }
+                    else
+                    {
+                        Label6.Text = "";
+                    }
+
+                    // Set the series collection for the chart
+                    CartesianChart1.Series = seriesCollection;
+                    }
+        //-----------------------------------------------------------------
         private void tbAxisX_Click(object sender, EventArgs e)
         {
             if (tbAxisY.Checked == true)
