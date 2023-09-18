@@ -490,24 +490,27 @@ namespace InclinoView
                 tbGraphType.Enabled = false;
             }
             }
-        
-            private void DisplayGraph()
+//------------------------------------------------------------------------------------
+        private void DisplayGraph()
         {
-            var cnt = default(short);
-            double maxX = 50.0d;
-            var strBaseData = default(string[][]);
+            // Initialize variables
+            var cnt = default(short); // Counter for labels
+            double maxX = 50.0d; // Maximum X value for the chart
+            var strBaseData = default(string[][]); // Array to store base data
 
+            // Create an empty collection for chart axis sections
             var axisSectionSeries = new SectionsCollection
             {
                 new AxisSection()
                 {
                     SectionWidth = 0d,
                     StrokeThickness = 2d,
-                    Stroke = System.Windows.Media.Brushes.Gray,
+                    Stroke = System.Windows.Media.Brushes.DarkGray,
                     Value = 0d
                 }
             };
 
+            // Create Y-axis with label formatter and styling
             var YAxis = new Axis()
             {
                 LabelFormatter = new Func<double, string>(x => x.ToString() + "m"),
@@ -518,6 +521,8 @@ namespace InclinoView
                     StrokeThickness = 1d
                 }
             };
+
+            // Create X-axis with label formatter, range, and styling
             var XAxis = new Axis()
             {
                 Title = "Displacement (mm)",
@@ -530,10 +535,13 @@ namespace InclinoView
                     Step = 10d,
                     StrokeThickness = 1d
                 },
-                Sections = axisSectionSeries
+                Sections = axisSectionSeries // Add axis sections
             };
+
+            // Create a collection to hold chart series
             var seriesCollection = new SeriesCollection();
 
+            // Reset labels and configure chart
             ResetLabels();
 
             CartesianChart1.BackColor = System.Drawing.Color.White;
@@ -543,40 +551,58 @@ namespace InclinoView
             CartesianChart1.AxisY.Clear();
             CartesianChart1.AxisY.Add(YAxis);
             CartesianChart1.AxisX.Add(XAxis);
+
             if (DataGridView1.Visible)
                 DataGridView1.Visible = false;
+
             if (CartesianChart1.Visible == false)
                 CartesianChart1.Visible = true;
+
             if (!ToolStrip2.Enabled)
                 ToolStrip2.Enabled = true;
             // PrintToolStripButton.Enabled = False
+
             tbAxisX.Enabled = true;
             tbAxisY.Enabled = true;
             tbZoom.Enabled = true;
             tbGraphType.Enabled = true;
 
+            /*// Check if the selected graph type is "Deviation"
             if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
             {
-                if (listBH[bhIndex].BaseFile is null | string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+                // Check if a base file is selected
+                if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
                 {
                     Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                     return;
                 }
+
+                // Get the path to the base file
                 string strFile = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+
+                // Check if the base file exists
                 if (!System.IO.File.Exists(strFile))
                 {
-                    Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                    Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                     return;
                 }
-                strBaseData = GlobalCode.ReadCSVFile(ref strFile);
-            }
 
-            foreach (string lstItem in lstBoreholes.SelectedItems)
-            {
+                // Read the base data from the base file
+                strBaseData = GlobalCode.ReadCSVFile(ref strFile);
+            }*/
+
+            Console.WriteLine($"SelectedItems Count: {lstBoreholes.SelectedItems.Count}");
+
+            // Loop through selected items
+            foreach (string lstItem in lstBoreholes.SelectedItems)//PROBLEM HERE: NOT ENTERING THE LOOP WHEN DEBUGGER IS RUNNING. BUT IF THE FOREACH LOOP IN NOT EXECUTING THEN WHY THE GRAPH GAVE RESPONSE WHEN CHANGED IN THE LAST LINE.
+            {   
+                Console.WriteLine("Inside foreach loop");
+                // Get the path to the current file
                 string argFileName = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + lstItem;
                 string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
                 string strFile = lstItem.Split('.').First().Replace("_", ":");
 
+                /*// Check if the graph type is "Deviation" and data lengths match
                 if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                 {
                     if (strData.Length != strBaseData.Length)
@@ -584,26 +610,51 @@ namespace InclinoView
                         Interaction.MsgBox("Scale or length mismatch between Base file and Selected file.", Constants.vbExclamation | Constants.vbOKOnly, "Graph");
                         return;
                     }
-                }
+                }*/
+
+                /*//old comments
                 // Dim invertedYMapper
-                // = LiveCharts.Configurations.Mappers.Xy(Of ObservablePoint)().X(Function(point) point.Y).Y(Function(point) -point.X)
+                // = LiveCharts.Configurations.Mappers.Xy(Of ObservablePoint)().X(Function(point) point.Y).Y(Function(point) -point.X)*/
+
+                // Create a new line series for the chart
                 var lineSeries = new VerticalLineSeries()
                 {
                     Title = "[" + strFile + "]",
                     Values = new ChartValues<ObservablePoint>(),
-                    Fill = System.Windows.Media.Brushes.Transparent
-                };
+                    Fill = System.Windows.Media.Brushes.Transparent,
 
+                    PointGeometry = DefaultGeometries.Diamond, // Change the data value indicator to a circle
+                    PointGeometrySize = 10, // Adjust the size of the data value indicator
+                    Stroke = System.Windows.Media.Brushes.Blue, // Change the line color to blue
+                    StrokeThickness = 2 // Adjust the line thickness
+
+                };
+                //--------------------------------------------------------------------
+                //float Val;
+                //Val = float.Parse(strData[i][3 + _axisValue]);
+                //--------------------------------------------------------------------
                 short i = 0;
                 float Val;
                 float absVal = 0f;
                 float Val2;
                 float absVal2 = 0f;
+
+                Console.WriteLine(_axisValue);
+
                 var loopTo = (short)(strData.Length - 1);
+                Console.WriteLine(loopTo);
+                // Populate line series with data points
                 for (i = 4; i <= loopTo; i++)
-                {
-                    Val = (float.Parse(strData[i][1 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
-                    if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                {   
+                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
+                    //Val = float.Parse(strData[i][3 + _axisValue]);
+                    Console.WriteLine("_axisValue:" + _axisValue);
+
+                    Val = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+
+                    Console.WriteLine(Val);
+
+                    /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                     {
                         Val += absVal;
                         absVal = Val;
@@ -616,34 +667,41 @@ namespace InclinoView
                         Val2 += absVal2;
                         absVal2 = Val2;
                         Val = absVal - absVal2;
-                    }
-                    if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
+                    }*/
+
+                    /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
                     {
                         maxX = Math.Ceiling((double)Math.Abs(Val));
-                    }
-                    lineSeries.Values.Add(new ObservablePoint((double)Val, (double)-float.Parse(strData[i][0])));
+                    }*/
 
+                    lineSeries.Values.Add(new ObservablePoint((double)Val, (double)-float.Parse(strData[i][2])));
                 }
 
                 maxX += maxX * 0.2d;
                 maxX = Math.Ceiling(maxX);
                 XAxis.MinValue = -maxX;
                 XAxis.MaxValue = maxX;
+
+                /*//old comments
+                // set the inverted mapping...
+                // lineSeries.Configuration = invertedYMapper*/
+
+
                 if (maxX > 150d)
                     XAxis.Separator.Step = 40d;
 
-                // set the inverted mapping...
-                // lineSeries.Configuration = invertedYMapper
-
                 seriesCollection.Add(lineSeries);
 
+                /*//old comments
                 // correct the labels
                 // XAxis.LabelFormatter = Function(x) (x * -1).ToString() & "m"
 
                 // Dim tooltip = New DefaultTooltip With {
                 // .SelectionMode = TooltipSelectionMode.OnlySender
                 // }
-                // CartesianChart1.DataTooltip = tooltip
+                // CartesianChart1.DataTooltip = tooltip*/
+
+                // Set labels
                 switch (cnt)
                 {
                     case 0:
@@ -674,6 +732,8 @@ namespace InclinoView
                 }
                 cnt = (short)(cnt + 1);
             }
+
+            // Update Label6 based on graph type
             if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
             {
                 Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
@@ -682,9 +742,12 @@ namespace InclinoView
             {
                 Label6.Text = "";
             }
+
+            Console.WriteLine(seriesCollection);
+            // Set the series collection for the chart
             CartesianChart1.Series = seriesCollection;
         }
-//-----------------------------------------------------------------
+ //--------------------------------------------------------------------------------------------------------------------------------
         private void tbAxisX_Click(object sender, EventArgs e)
         {
             if (tbAxisY.Checked == true)
