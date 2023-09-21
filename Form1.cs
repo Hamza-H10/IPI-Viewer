@@ -309,10 +309,13 @@ namespace InclinoView
  //--------------------------------------------------------------------------------
             // Create columns in the DataTable to hold the report data
             ds.Columns.Add("DateTime", typeof(DateTime)); // Add a DateTime column
-            ds.Columns.Add("Sensor", Type.GetType("System.Single"));
+            ds.Columns.Add("Sensor", typeof(int));
+            //ds.Columns.Add("Sensor", Type.GetType("System.Single"));
             ds.Columns.Add("Depth", Type.GetType("System.Single"));
             ds.Columns.Add("A", Type.GetType("System.Single"));
             ds.Columns.Add("B", Type.GetType("System.Single"));
+
+            //_ = ds.Columns["Sensor"].DataType;
 
             /* ds.Columns.Add("Mean A", Type.GetType("System.Single"));
              ds.Columns.Add("Mean B", Type.GetType("System.Single"));
@@ -336,14 +339,53 @@ namespace InclinoView
                 ValB = (float.Parse(strData[i][4]));
                 ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);
-                Console.WriteLine(ValA + " " + ValB);
-//-------------------------------------------------------------------------
+                //Console.WriteLine(ValA + " " + ValB);
+                //-------------------------------------------------------------------------
                 //my change remove this 
                 //ds.Rows.Add(new object[] {float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), ValA, ValB });
-                ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4])});
+                //ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4])});
                 //-------------------------------------------------------------------------               
-                
-                
+
+                /*if (DateTime.TryParse(strData[i][0], out DateTime dateTimeValue) &&
+                     int.TryParse(strData[i][1], out int intValue1) &&
+                     int.TryParse(strData[i][2], out int intValue2) &&
+                     float.TryParse(strData[i][3], out float floatValue1) &&
+                     float.TryParse(strData[i][4], out float floatValue2))
+                {
+                    ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
+                }
+                else
+                {
+                    // Print the problematic values and index
+                    Console.WriteLine($"Error parsing values at index {i}:");
+                    Console.WriteLine($"strData[i][0]: {strData[i][0]}");
+                    Console.WriteLine($"strData[i][1]: {strData[i][1]}");
+                    Console.WriteLine($"strData[i][2]: {strData[i][2]}");
+                    Console.WriteLine($"strData[i][3]: {strData[i][3]}");
+                    Console.WriteLine($"strData[i][4]: {strData[i][4]}");
+
+                    // Handle the case where parsing fails, log an error, or take appropriate action.
+                }*/
+                //ValA = float.Parse(strData[i][3].Trim());
+                //ValB = float.Parse(strData[i][4].Trim());
+
+                try
+                {
+                    // Attempt to parse the values
+                    ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]) });
+                }
+                catch (FormatException ex)
+                {
+                    // Handle the parsing error and log the details
+                    Console.WriteLine($"Error parsing values at index {i}: {ex.Message}");
+                    Console.WriteLine($"strData[i][0]: {strData[i][0]}");
+                    Console.WriteLine($"strData[i][1]: {strData[i][1]}");
+                    Console.WriteLine($"strData[i][2]: {strData[i][2]}");
+                    Console.WriteLine($"strData[i][3]: {strData[i][3]}");
+                    Console.WriteLine($"strData[i][4]: {strData[i][4]}");
+                    // You can choose to skip or handle this row as needed
+                }
+
                 //float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
                 // Accumulate absolute values for A and B
                 /*absValA += ValA;
@@ -379,7 +421,7 @@ namespace InclinoView
                 }*/
             }
 
-              
+
             if (bnLoadText)
                 {
                     // Prepare text data for loading (if needed)
@@ -456,6 +498,9 @@ namespace InclinoView
                         DataGridView1.Columns[i].Width = 100;
                     }*/
                     // Set the DateTime format for the "DateTime" column
+
+                    DataGridView1.Columns["Sensor"].DefaultCellStyle.Format = "D"; // "D" format for integers
+
                     if (DataGridView1.Columns[i].Name == "DateTime")
                     {
                         DataGridView1.Columns[i].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
@@ -475,7 +520,7 @@ namespace InclinoView
                     DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
 
                     // Change the background color of selected cells
-                    DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Blue;
+                    DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Pink;
                     DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
                 // Enable or disable ToolStrip buttons based on conditions
@@ -565,7 +610,7 @@ namespace InclinoView
             tbAxisX.Enabled = true;
             tbAxisY.Enabled = true;
             tbZoom.Enabled = true;
-            tbGraphType.Enabled = true;
+            //tbGraphType.Enabled = true;
 
             /*// Check if the selected graph type is "Deviation"
             if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
@@ -639,16 +684,18 @@ namespace InclinoView
                 float Val2;
                 float absVal2 = 0f;
 
-                Console.WriteLine(_axisValue);
+                //Console.WriteLine(_axisValue);
 
                 var loopTo = (short)(strData.Length - 1);
-                Console.WriteLine(loopTo);
+
+                Console.WriteLine("loopTo: "+loopTo);
+
                 // Populate line series with data points
                 for (i = 4; i <= loopTo; i++)
                 {   
                     //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
                     //Val = float.Parse(strData[i][3 + _axisValue]);
-                    Console.WriteLine("_axisValue:" + _axisValue);
+                    //Console.WriteLine("_axisValue:" + _axisValue);
 
                     Val = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
 

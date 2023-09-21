@@ -43,8 +43,6 @@ namespace InclinoView
             string dbFilePath = Path.Combine(appFolderPath, "data.sqlite");
             sqlite_conn = new SQLiteConnection("Data Source=" + dbFilePath + ";Version=3;");*/
 
-
-
             // open the connection:
             sqlite_conn.Open();
 
@@ -166,12 +164,16 @@ namespace InclinoView
             sqlite_datareader.Close();
             return bh;
         }
+//-----------------------------------------------------------------------------------------------------------------------------
+        
+        
 
+//----------------------------------------------------------------------------------------------------------------------------
         public static string[][] ReadCSVFile(ref string FileName)//acc. to gpt 
         {
             string[][] ReadCSVFileRet = default;
             var data = new List<string[]>();
-            Console.WriteLine("inside read csv");
+            Console.WriteLine("INSIDE READ CSV");
             try
             {
                 using (var MyReader = new Microsoft.VisualBasic.FileIO.TextFieldParser(FileName))
@@ -193,7 +195,7 @@ namespace InclinoView
                             ReadCSVFileRet = null;
                         }
                     }
-                    Console.WriteLine("ReadCSVFileRet:" + ReadCSVFileRet);
+                    //Console.WriteLine("ReadCSVFileRet:" + ReadCSVFileRet);
                     foreach (string[] row in data)
                     {
                         foreach (string cell in row)
@@ -211,6 +213,7 @@ namespace InclinoView
                 return null;
             }
         }
+//--------------------------------------------------------------------------------------------------------------------------
         public static string GetBoreholeDirectory(ref short bhnum)
         {
             //return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
