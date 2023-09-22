@@ -164,56 +164,63 @@ namespace InclinoView
             sqlite_datareader.Close();
             return bh;
         }
-//-----------------------------------------------------------------------------------------------------------------------------
-        
-        
+        //-----------------------------------------------------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------------------------------------------------------
-        public static string[][] ReadCSVFile(ref string FileName)//acc. to gpt 
+
+
+        //----------------------------------------------------------------------------------------------------------------------------
+        public static string[][] ReadCSVFile(ref string FileName)
         {
-            string[][] ReadCSVFileRet = default;
-            var data = new List<string[]>();
-            Console.WriteLine("INSIDE READ CSV");
+            string[][] ReadCSVFileRet = default; // Declare a string array (string[][]) to store the result
+            var data = new List<string[]>(); // Create a list to hold string arrays
+
+            Console.WriteLine("INSIDE READ CSV"); // Print a message to the console
+
             try
             {
                 using (var MyReader = new Microsoft.VisualBasic.FileIO.TextFieldParser(FileName))
                 {
-                    MyReader.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited;
-                    MyReader.SetDelimiters(",");
+                    MyReader.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited; // Set the text field type to delimited
+                    MyReader.SetDelimiters(","); // Set the delimiter to a comma (',')
 
-                    while (!MyReader.EndOfData)
+                    while (!MyReader.EndOfData) // Continue reading until the end of the file is reached
                     {
                         try
                         {
-                            string[] split = MyReader.ReadFields();
-                            data.Add(split);
+                            string[] split = MyReader.ReadFields(); // Read a line and split it into an array of strings
+                            data.Add(split); // Add the array to the list
                         }
                         catch (Microsoft.VisualBasic.FileIO.MalformedLineException ex)
                         {
-                             //MsgBox("Line " & ex.Message &
-                             //"is not valid and will be skipped.")
-                            ReadCSVFileRet = null;
+                            // Handle a malformed line exception (if encountered)
+                            // In this case, the line is considered invalid and skipped
+                            ReadCSVFileRet = null; // Set the result to null
                         }
                     }
                     //Console.WriteLine("ReadCSVFileRet:" + ReadCSVFileRet);
-                    foreach (string[] row in data)
+
+                    //printing the elements of the file 
+                    /*foreach (string[] row in data)
                     {
                         foreach (string cell in row)
                         {
                             Console.Write(cell + "\t"); // Print the cell value followed by a tab
                         }
                         Console.WriteLine(); // Move to the next line for the next row
-                    }
+                    }*/
                 }
-                return data.ToArray();
+
+                return data.ToArray(); // Convert the list of string arrays to a 2D string array and return it
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox(ex.Message, Constants.vbOKOnly | Constants.vbExclamation, "File Read");
-                return null;
+                // Handle any other exceptions that may occur during file reading
+                Interaction.MsgBox(ex.Message, Constants.vbOKOnly | Constants.vbExclamation, "File Read"); // Show a message box with the error message
+                return null; // Return null to indicate an error
             }
         }
-//--------------------------------------------------------------------------------------------------------------------------
+
+        //--------------------------------------------------------------------------------------------------------------------------
         public static string GetBoreholeDirectory(ref short bhnum)
         {
             //return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');

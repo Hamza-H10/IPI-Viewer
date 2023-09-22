@@ -90,18 +90,24 @@ namespace InclinoView
         {
             GlobalCode.CloseDatabase();
         }
+//-----------------------------------------------------------------------------------------------------------------------------
 
         private void tbImport_Click(object sender, EventArgs e)
         {
             short cnt = 0;
             short cntError = 0;
             short cntRepeat = 0;
-            string msgString = "Import Summary:" + Constants.vbCrLf;//what is vbCrLf?
+            
+            string msgString = "Import Summary:" + Environment.NewLine; //Environment.NewLine = "\r\n"
+            Console.WriteLine(msgString);
+
+
             if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
             {
 
                 foreach (string strFileName in OpenFileDialog1.FileNames)
                 {
+                    Console.WriteLine(strFileName);
 
                     string tempFileName = strFileName; // Create a temporary variable
                     Console.WriteLine("tempFileName: "+ tempFileName);
@@ -111,32 +117,10 @@ namespace InclinoView
 
                     if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                     {
-                        string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);//check the dimensions of strData to ensure that the it has enough rows and columns to support this indexing.
-                    /*----------------------------------------------------------------------------*/
-                      /*  //this is just to check the data of array on consol.
-                        if (strData != null && strData.Length > 0) { 
-                            // Iterate through rows
-                            for (int i = 0; i < strData.Length; i++)
-                            {
-                                // Access the current row
-                                string[] row = strData[i];
+                        string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);
 
-                                // Iterate through columns within the row
-                                for (int j = 0; j < row.Length; j++)
-                                {
-                                    // Access the current cell's value
-                                    string cellValue = row[j];
+                        Console.WriteLine(strData.Length);
 
-                                    // Do something with cellValue, such as printing it
-                                    Console.WriteLine($"Row {i}, Column {j}: {cellValue}");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("No data found in strData.");
-                        }*/
-                    /*------------------------------------------------------------------------------------*/
                         if (strData.Length < 5)
                         {
                             cntError = (short)(cntError + 1);
@@ -151,6 +135,8 @@ namespace InclinoView
                             borehole_num = short.Parse(strData[0][1]);
                             strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
                             strFileNew = strDirName + @"\" + strFileNew;
+                            Console.WriteLine("strFileNew: "+ strFileName);
+
                             if (System.IO.File.Exists(strFileNew))
                             {
                                 cntRepeat = (short)(cntRepeat + 1);
@@ -175,7 +161,6 @@ namespace InclinoView
                                 ReloadList();
                                 cnt = (short)(cnt + 1);
                             }
-
                         }
                     }
                 }
@@ -189,7 +174,7 @@ namespace InclinoView
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
         }
-
+//------------------------------------------------------------------------------------------------------------------------------------
         private void tbBack_Click(object sender, EventArgs e)
         {
             if (boreHoleSelected > 0)
@@ -497,10 +482,10 @@ namespace InclinoView
                     {
                         DataGridView1.Columns[i].Width = 100;
                     }*/
-                    // Set the DateTime format for the "DateTime" column
 
                     DataGridView1.Columns["Sensor"].DefaultCellStyle.Format = "D"; // "D" format for integers
 
+                    // Set the DateTime format for the "DateTime" column                
                     if (DataGridView1.Columns[i].Name == "DateTime")
                     {
                         DataGridView1.Columns[i].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
