@@ -11,6 +11,8 @@ using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
+using System.IO;
+
 
 namespace InclinoView
 {   /// <summary>
@@ -90,14 +92,139 @@ namespace InclinoView
         {
             GlobalCode.CloseDatabase();
         }
-//-----------------------------------------------------------------------------------------------------------------------------
-
+        //-------------------------------------------------------------------------------------------------------------------------------- gpt
         private void tbImport_Click(object sender, EventArgs e)
         {
             short cnt = 0;
             short cntError = 0;
             short cntRepeat = 0;
-            
+
+            string msgString = "Import Summary:" + Environment.NewLine;
+
+            if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                foreach (string strFileName in OpenFileDialog1.FileNames)
+                {
+                    string tempFileName = strFileName;
+                    string strFileNew = strFileName.Split('\\').Last();
+
+                    if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                    {
+                        string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);
+
+                        if (strData.Length < 5)
+                        {
+                            cntError = (short)(cntError + 1);
+                        }
+                        else
+                        {
+                            // ... Rest of your code ...
+                            // Catch 4 parameters for the new borehole
+                            short borehole_num;
+                            float depth;
+                            string strDirName;
+
+                            borehole_num = short.Parse(strData[0][1]);
+                            strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
+                            strFileNew = strDirName + @"\" + strFileNew;
+                            Console.WriteLine("strFileNew: " + strFileName);
+                       
+//-----------------------------------------------------------------------------------------------------------------------------
+                            // Split the CSV data into sub-files based on DateTime
+                            SplitCSVDataIntoSubFiles(strData);
+//---------------------------------------------------------------------------------------------------------------------------
+                            if (System.IO.File.Exists(strFileNew))
+                            {
+                                cntRepeat = (short)(cntRepeat + 1);
+                            }
+                            else
+                            {
+                                if (!System.IO.Directory.Exists(strDirName))
+                                {
+                                    System.IO.Directory.CreateDirectory(strDirName);
+                                }
+                                FileSystem.FileCopy(strFileName, strFileNew);
+                                Console.WriteLine(strData[1][0]);
+                                // depth = float.Parse(strData[4][0]);
+                                Console.WriteLine("strData[10][2]: " + strData[10][2]);
+                                depth = float.Parse(strData[10][2]);//check here if the value comes or not
+
+                                var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
+                                if (!GlobalCode.AddBorehole(ref bh))
+                                {
+                                    GlobalCode.UpdateBorehole(ref bh);
+                                }
+                                ReloadList();
+                                cnt = (short)(cnt + 1);
+                            }
+
+                            // ... Rest of your code ...
+                        }
+                    }
+                }
+
+                if (cnt > 0)
+                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
+                if (cntError > 0)
+                    msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
+                if (cntRepeat > 0)
+                    msgString += cntRepeat + " file(s) were already imported into the application, hence ignored." + Constants.vbCrLf;
+
+                Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
+            }
+        }
+
+        private void SplitCSVDataIntoSubFiles(string[][] strData)
+        {
+            // Create a dictionary to store sub-file data by date
+            Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
+
+            // Iterate through the CSV data starting from the row with column headers (strData[3][0])
+            for (int i = 4; i < strData.Length; i++)
+            {
+                // Parse the DateTime value from the "DateTime" column
+                DateTime dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+
+                // Extract the date and time parts
+                string datePart = dateTime.ToString("dd-MM-yyyy");
+                string timePart = dateTime.ToString("HH:mm");
+
+                // Check if the date is already in the dictionary
+                if (!subFiles.ContainsKey(datePart))
+                {
+                    // Create a new list for this date
+                    subFiles[datePart] = new List<string>();
+                }
+
+                // Add the row to the list for the corresponding date
+                subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
+            }
+
+            // Create sub-files based on the dictionary
+            foreach (var kvp in subFiles)
+            {
+                string date = kvp.Key;
+                List<string> rows = kvp.Value;
+
+                // Get the maximum time value for this date
+                string maxTime = rows.Max(row => row.Split('\t')[1]); // Assuming the time is in the second column
+
+                // Filter rows with the maximum time value
+                List<string> filteredRows = rows.Where(row => row.Split('\t')[1] == maxTime).ToList();
+
+                // Create a sub-file with the date as the filename
+                string subFileName = $"{date}.csv"; // You can change the file extension as needed
+                File.WriteAllLines(subFileName, filteredRows);
+            }
+        }
+        //========================================================================================================================
+
+        /*private void tbImport_Click(object sender, EventArgs e)
+        {
+            short cnt = 0;
+            short cntError = 0;
+            short cntRepeat = 0;
+
             string msgString = "Import Summary:" + Environment.NewLine; //Environment.NewLine = "\r\n"
             Console.WriteLine(msgString);
 
@@ -110,10 +237,10 @@ namespace InclinoView
                     Console.WriteLine(strFileName);
 
                     string tempFileName = strFileName; // Create a temporary variable
-                    Console.WriteLine("tempFileName: "+ tempFileName);
+                    Console.WriteLine("tempFileName: " + tempFileName);
 
                     string strFileNew = strFileName.Split('\\').Last();//opening a string file dialogue here when selected the already imported file
-                    Console.WriteLine("strFileNew: "+ strFileNew);
+                    Console.WriteLine("strFileNew: " + strFileNew);
 
                     if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                     {
@@ -135,7 +262,7 @@ namespace InclinoView
                             borehole_num = short.Parse(strData[0][1]);
                             strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
                             strFileNew = strDirName + @"\" + strFileNew;
-                            Console.WriteLine("strFileNew: "+ strFileName);
+                            Console.WriteLine("strFileNew: " + strFileName);
 
                             if (System.IO.File.Exists(strFileNew))
                             {
@@ -152,7 +279,7 @@ namespace InclinoView
                                 // depth = float.Parse(strData[4][0]);
                                 Console.WriteLine("strData[10][2]: " + strData[10][2]);
                                 depth = float.Parse(strData[10][2]);//check here if the value comes or not
-                                
+
                                 var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
                                 if (!GlobalCode.AddBorehole(ref bh))
                                 {
@@ -173,8 +300,8 @@ namespace InclinoView
 
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
-        }
-//------------------------------------------------------------------------------------------------------------------------------------
+        }*/
+        //------------------------------------------------------------------------------------------------------------------------------------
         private void tbBack_Click(object sender, EventArgs e)
         {
             if (boreHoleSelected > 0)
