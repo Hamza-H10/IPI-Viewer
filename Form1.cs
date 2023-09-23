@@ -15,154 +15,197 @@ using System.IO;
 
 
 namespace InclinoView
-{   /// <summary>
+{
+    /// <summary>
     /// This class represents the main form of the application.
     /// </summary>
     /// <author>Hamza</author>
     /// <date>2023-09-10</date>
     public partial class Form1
     {
+        // Class-level fields for managing data
         private List<GlobalCode.BoreHole> listBH;
         private short bhIndex = -1;
         private short boreHoleSelected = 0;
         private short _axisValue = 0;
         private string bsTextPrintData;
         private Font printFont;
+
         /// <summary>
         /// This method loads the main form of the application.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public Form1()
-        
         {
             InitializeComponent();
         }
 
+        // Reloads the list of boreholes in the user interface
         private void ReloadList()
         {
-
+            Console.WriteLine("Inside ReloadList function");
+            // Clear the list of boreholes
             lstBoreholes.Items.Clear();
+
+            // Check if a specific borehole is selected
             if (boreHoleSelected == 0)
             {
+                // Retrieve the list of boreholes from the database
                 listBH = GlobalCode.GetBoreholes();
 
+                // Populate the list box with borehole information
                 foreach (var bitem in listBH)
                     lstBoreholes.Items.Add("[" + bitem.Id.ToString("D2") + "] " + bitem.SiteName + " - " + bitem.Location);
+
+                // Configure list box selection mode and toolbar
                 lstBoreholes.SelectionMode = SelectionMode.One;
                 bool argenb = false;
                 ToolBarEnable(ref argenb);
             }
             else
-            {
-                // get directory listing
+            {	// get directory listing
+                // Get a listing of CSV files in the selected borehole directory
                 var di = new System.IO.DirectoryInfo(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected));
+                Console.WriteLine("di: "+ di);
                 System.IO.FileInfo[] aryFi = di.GetFiles("*.csv");
 
+                // Populate the list box with CSV file names
                 foreach (var fi in aryFi)
                     lstBoreholes.Items.Add(fi.Name);
 
+                // Configure list box selection mode and toolbar
                 lstBoreholes.SelectionMode = SelectionMode.MultiSimple;
-
                 bool argenb1 = true;
                 ToolBarEnable(ref argenb1);
             }
+
+            // Reset labels and hide chart and DataGridView
             ResetLabels();
             CartesianChart1.Visible = false;
             DataGridView1.Visible = false;
             ToolStrip2.Enabled = false;
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // Set label colors
             Label1.ForeColor = System.Drawing.Color.FromArgb(33, 149, 242);
             Label2.ForeColor = System.Drawing.Color.FromArgb(243, 67, 54);
             Label3.ForeColor = System.Drawing.Color.FromArgb(254, 192, 7);
             Label4.ForeColor = System.Drawing.Color.FromArgb(96, 125, 138);
             Label5.ForeColor = System.Drawing.Color.FromArgb(0, 187, 211);
+
+            // Open the application's database
             GlobalCode.OpenDatabase();
             // _DeleteAllBoreholes() ' temporary delete all
             tbGraphType.SelectedIndex = 0;
 
+            // Load the list of boreholes
             ReloadList();
         }
 
         private void FrmMain_FormClosed(object sender, FormClosedEventArgs e)
         {
+            // Close the application's database when the form is closed
             GlobalCode.CloseDatabase();
         }
-        //-------------------------------------------------------------------------------------------------------------------------------- gpt
+
+        //============================================================================================================================ gpt
         private void tbImport_Click(object sender, EventArgs e)
         {
-            short cnt = 0;
-            short cntError = 0;
-            short cntRepeat = 0;
+            // Initialize counters to keep track of import results
+            short cnt = 0;          // Counter for successfully imported files
+            short cntError = 0;     // Counter for files with incorrect format
+            short cntRepeat = 0;    // Counter for files already imported
 
+            // Prepare a message string to summarize the import process
             string msgString = "Import Summary:" + Environment.NewLine;
 
+            // Check if the user selected files using the OpenFileDialog
             if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                // Loop through each selected file
                 foreach (string strFileName in OpenFileDialog1.FileNames)
                 {
+                    // Log the name of the current file to the console
+                    Console.WriteLine("strFileName: " + strFileName);
+
+                    // Create a temporary file name and extract the file name
                     string tempFileName = strFileName;
                     string strFileNew = strFileName.Split('\\').Last();
 
+                    // Check if the file extension is "csv" (case-insensitive)
                     if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                     {
+                        // Read the CSV file data into a two-dimensional string array
                         string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);
 
+                        // Check if the CSV data has a minimum number of rows
                         if (strData.Length < 5)
                         {
                             cntError = (short)(cntError + 1);
                         }
                         else
                         {
-                            // ... Rest of your code ...
+                            // Rest of your code...
+
                             // Catch 4 parameters for the new borehole
+                            // Parse the borehole number, directory name, and depth from the CSV data
                             short borehole_num;
                             float depth;
                             string strDirName;
 
                             borehole_num = short.Parse(strData[0][1]);
-                            strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
+                            strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);
                             strFileNew = strDirName + @"\" + strFileNew;
-                            Console.WriteLine("strFileNew: " + strFileName);
-                       
-//-----------------------------------------------------------------------------------------------------------------------------
-                            // Split the CSV data into sub-files based on DateTime
-                            SplitCSVDataIntoSubFiles(strData);
-//---------------------------------------------------------------------------------------------------------------------------
+                            Console.WriteLine("strFileNew: " + strFileNew);
+                            Console.WriteLine("strDirName: " + strDirName);
+
+                            // Check if the file already exists (if imported previously)
                             if (System.IO.File.Exists(strFileNew))
                             {
                                 cntRepeat = (short)(cntRepeat + 1);
                             }
                             else
                             {
+                                // Check if the directory exists; if not, create it
                                 if (!System.IO.Directory.Exists(strDirName))
                                 {
                                     System.IO.Directory.CreateDirectory(strDirName);
                                 }
-                                FileSystem.FileCopy(strFileName, strFileNew);
-                                Console.WriteLine(strData[1][0]);
-                                // depth = float.Parse(strData[4][0]);
-                                Console.WriteLine("strData[10][2]: " + strData[10][2]);
-                                depth = float.Parse(strData[10][2]);//check here if the value comes or not
 
+                                // Copy the selected file to the destination directory
+                                FileSystem.FileCopy(strFileName, strFileNew);//(source path, target path)
+                                Console.WriteLine(strData[1][0]);
+
+                                // Parse the depth value from the CSV data
+                                depth = float.Parse(strData[10][2]);
+
+                                // Create a new BoreHole object and add/update it
                                 var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
+                                Console.WriteLine(bh);
+
+                                // Add or update the BoreHole in the application
                                 if (!GlobalCode.AddBorehole(ref bh))
                                 {
                                     GlobalCode.UpdateBorehole(ref bh);
                                 }
+
+                                // Reload the list
                                 ReloadList();
                                 cnt = (short)(cnt + 1);
                             }
+                            //-----------------------------------------------------------------------------------------------------------------------------
+                            // Split the CSV data into sub-files based on DateTime
+                            SplitCSVDataIntoSubFiles(strData);
+                            //---------------------------------------------------------------------------------------------------------------------------                           
 
-                            // ... Rest of your code ...
                         }
                     }
                 }
 
+                // Prepare a summary message with import results
                 if (cnt > 0)
                     msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
                 if (cntError > 0)
@@ -170,12 +213,13 @@ namespace InclinoView
                 if (cntRepeat > 0)
                     msgString += cntRepeat + " file(s) were already imported into the application, hence ignored." + Constants.vbCrLf;
 
+                // Display the summary message to the user
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
         }
-
         private void SplitCSVDataIntoSubFiles(string[][] strData)
         {
+            Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
             // Create a dictionary to store sub-file data by date
             Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
 
@@ -199,6 +243,46 @@ namespace InclinoView
                 // Add the row to the list for the corresponding date
                 subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
             }
+            /*private void SplitCSVDataIntoSubFiles(string[][] strData)//gpt
+            {
+                Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+
+                // Create a dictionary to store sub-file data by date
+                Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
+
+                // Iterate through the CSV data starting from the row with column headers (strData[3][0])
+                for (int i = 4; i < strData.Length; i++)
+                {
+                    // Parse the DateTime value from the "DateTime" column
+                    DateTime dateTime;
+                    string datePart = "";
+                    try
+                    {
+                        dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+
+                        // Extract the date and time parts
+                        datePart = dateTime.ToString("dd-MM-yyyy");
+                        string timePart = dateTime.ToString("HH:mm");
+                    }
+                    catch (FormatException ex)
+                    {
+                        // Handle the case where date parsing fails (invalid date format)
+                        Console.WriteLine($"Error parsing date on row {i + 1}: {ex.Message}");
+                        continue; // Skip this row and continue with the next
+                    }
+
+                    // Check if the date is already in the dictionary
+                    if (!subFiles.ContainsKey(datePart))
+                    {
+                        // Create a new list for this date
+                        subFiles[datePart] = new List<string>();
+                    }
+
+                    // Add the row to the list for the corresponding date
+                    subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
+
+                    // Now 'subFiles' contains the data grouped by date, and any parsing errors are logged
+                }*/
 
             // Create sub-files based on the dictionary
             foreach (var kvp in subFiles)
@@ -405,6 +489,8 @@ namespace InclinoView
 
             // Construct the path to the selected data file
             string argFileName = Conversions.ToString(Operators.ConcatenateObject(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\", lstBoreholes.SelectedItem));
+            Console.WriteLine("argFileName: "+argFileName);
+
             string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
  //-----------------------------------------------------------------------------           
             /*if (strData != null)//this is for checking the strData
@@ -440,6 +526,7 @@ namespace InclinoView
 
             // Process data rows
             var loopTo = (short)(strData.Length - 1);
+            Console.WriteLine("size of the file: " + loopTo);
             for (i = 4; i <= loopTo; i++)
             {
                 // Calculate values for A and B
@@ -447,10 +534,12 @@ namespace InclinoView
                 ValB = (float.Parse(strData[i][3]) - float.Parse(strData[i][4])) / 2f;
                 ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);*/
-                ValA = (float.Parse(strData[i][3]));
+                
+                /*ValA = (float.Parse(strData[i][3]));
                 ValB = (float.Parse(strData[i][4]));
                 ValA = (float)Math.Round((double)ValA, 2);
-                ValB = (float)Math.Round((double)ValB, 2);
+                ValB = (float)Math.Round((double)ValB, 2);*/
+
                 //Console.WriteLine(ValA + " " + ValB);
                 //-------------------------------------------------------------------------
                 //my change remove this 
@@ -532,7 +621,6 @@ namespace InclinoView
                     ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB });
                 }*/
             }
-
 
             if (bnLoadText)
                 {
@@ -622,7 +710,6 @@ namespace InclinoView
                     // Configure DataGridView appearance
                     DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
                     DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
 
                     // Change the background color of the entire DataGridView
                     DataGridView1.BackgroundColor = Color.LightGray;
