@@ -166,8 +166,6 @@ namespace InclinoView
         }
         //-----------------------------------------------------------------------------------------------------------------------------
 
-
-
         //----------------------------------------------------------------------------------------------------------------------------
         public static string[][] ReadCSVFile(ref string FileName)
         {
@@ -199,15 +197,15 @@ namespace InclinoView
                     }
                     //Console.WriteLine("ReadCSVFileRet:" + ReadCSVFileRet);
 
-                    //printing the elements of the file 
-                    /*foreach (string[] row in data)
+                    //printing the elements of the file(printing Raw data) 
+                    foreach (string[] row in data)
                     {
                         foreach (string cell in row)
                         {
                             Console.Write(cell + "\t"); // Print the cell value followed by a tab
                         }
                         Console.WriteLine(); // Move to the next line for the next row
-                    }*/
+                    }
                 }
 
                 return data.ToArray(); // Convert the list of string arrays to a 2D string array and return it

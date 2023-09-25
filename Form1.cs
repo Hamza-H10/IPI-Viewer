@@ -173,13 +173,15 @@ namespace InclinoView
                                     System.IO.Directory.CreateDirectory(strDirName);
                                 }
 
-//MAKE CHANGES HERE: COPY THE FILES TO THE DESTINATION AFTER THE CSV FILE IS SPLITTED INTO ITS SUB FILES
+                                //MAKE CHANGES HERE: COPY THE FILES TO THE DESTINATION AFTER THE CSV FILE IS SPLITTED INTO ITS SUB FILES
                                 // Copy the selected file to the destination directory
-                                FileSystem.FileCopy(strFileName, strFileNew);//(source path, target path)
+                               FileSystem.FileCopy(strFileName, strFileNew);//(source path, target path)
+                                
                                 Console.WriteLine(strData[1][0]);
 
                                 // Parse the depth value from the CSV data
-                                depth = float.Parse(strData[10][2]);
+                                //depth = float.Parse(strData[10][2]);
+                                depth = float.Parse(strData[4][2]);
 
                                 // Create a new BoreHole object and add/update it
                                 var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
@@ -314,7 +316,7 @@ namespace InclinoView
                 if (!subFiles.ContainsKey(datePart))
                 {
                     // Create a new list for this date
-                    subFiles[datePart] = new List<string>();
+                    subFiles[datePart] = new List<string>(); 
                 }
 
                 // Add the row to the list for the corresponding date
@@ -322,7 +324,6 @@ namespace InclinoView
 
                 // Now 'subFiles' contains the data grouped by date, and any parsing errors are logged
             }
-        
                 // Create sub-files based on the dictionary
                 foreach (var kvp in subFiles)
             {
@@ -331,12 +332,16 @@ namespace InclinoView
 
                 // Get the maximum time value for this date
                 string maxTime = rows.Max(row => row.Split('\t')[1]); // Assuming the time is in the second column
+                Console.WriteLine("maxTime: "+ maxTime);
 
                 // Filter rows with the maximum time value
                 List<string> filteredRows = rows.Where(row => row.Split('\t')[1] == maxTime).ToList();
+                Console.WriteLine("filteredRows: "+filteredRows);
 
                 // Create a sub-file with the date as the filename
                 string subFileName = $"{date}.csv"; // You can change the file extension as needed
+                Console.WriteLine("subFileName: "+subFileName);
+
                 File.WriteAllLines(subFileName, filteredRows);
             }
         }
@@ -472,7 +477,8 @@ namespace InclinoView
         }*/
 
         private void DisplayReport(bool bnLoadText = false)
-        {
+        {// the original csv file which is coming from the datalogger is not able to parse and display report and the copied csv file in the excel is parsing without an error. 
+//fix the issue - parsing to be done from the original csv
             // Define variables to store data and calculations
             var ds = new DataTable(); // Create a DataTable to hold the report data
             var strBaseData = default(string[][]); // Store data from a base file
@@ -498,9 +504,11 @@ namespace InclinoView
             float deviationA;
             float deviationB;*/
 
+            
+//-------------------------------------------------------------------------------------------------------------------------------------
+          //FOR BASE FILE UNCOMMENT THIS WHEN IMPLEMENT FOR BASEfile
             // Reset labels and prepare for report generation
-
-            if (listBH[bhIndex].BaseFile is null | string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+           /* if (listBH[bhIndex].BaseFile is null | string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
                 bnBaseFilePresent = false; // No base file is present
                 Label6.Text = "";
@@ -522,8 +530,8 @@ namespace InclinoView
                     // Display a message if the base file does not exist
                     Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                 }
-            }
-
+            }*/
+//-------------------------------------------------------------------------------------------------------------------------------------
             Label1.Text = lstBoreholes.SelectedItem.ToString().Split('.').First().Replace("_", ":");
 
             // Construct the path to the selected data file
@@ -573,7 +581,7 @@ namespace InclinoView
                 ValB = (float.Parse(strData[i][3]) - float.Parse(strData[i][4])) / 2f;
                 ValA = (float)Math.Round((double)ValA, 2);
                 ValB = (float)Math.Round((double)ValB, 2);*/
-                
+
                 /*ValA = (float.Parse(strData[i][3]));
                 ValB = (float.Parse(strData[i][4]));
                 ValA = (float)Math.Round((double)ValA, 2);
@@ -586,9 +594,13 @@ namespace InclinoView
                 //ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4])});
                 //-------------------------------------------------------------------------               
 
-                /*if (DateTime.TryParse(strData[i][0], out DateTime dateTimeValue) &&
-                     int.TryParse(strData[i][1], out int intValue1) &&
-                     int.TryParse(strData[i][2], out int intValue2) &&
+                string[] validFormats = { "dd/MM/yyyy HH:mm", "d/M/yyyy HH:mm", "dd-MM-yyyy HH:mm" }; // Add more formats if needed
+
+                CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US"); // Use "en-US" or the appropriate culture for your date format
+
+                if (DateTime.TryParseExact(strData[i][0], validFormats, culture, DateTimeStyles.None, out DateTime dateTimeValue) &&
+                    int.TryParse(strData[i][1], out int intValue1) &&
+                    int.TryParse(strData[i][2], out int intValue2) &&
                      float.TryParse(strData[i][3], out float floatValue1) &&
                      float.TryParse(strData[i][4], out float floatValue2))
                 {
@@ -597,7 +609,7 @@ namespace InclinoView
                 else
                 {
                     // Print the problematic values and index
-                    Console.WriteLine($"Error parsing values at index {i}:");
+                    Console.WriteLine($"Error parsing values at row {i + 1}, column {0}:");
                     Console.WriteLine($"strData[i][0]: {strData[i][0]}");
                     Console.WriteLine($"strData[i][1]: {strData[i][1]}");
                     Console.WriteLine($"strData[i][2]: {strData[i][2]}");
@@ -605,11 +617,12 @@ namespace InclinoView
                     Console.WriteLine($"strData[i][4]: {strData[i][4]}");
 
                     // Handle the case where parsing fails, log an error, or take appropriate action.
-                }*/
+                }
+
                 //ValA = float.Parse(strData[i][3].Trim());
                 //ValB = float.Parse(strData[i][4].Trim());
 
-                try
+                /*try
                 {
                     // Attempt to parse the values
                     ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]) });
@@ -624,7 +637,35 @@ namespace InclinoView
                     Console.WriteLine($"strData[i][3]: {strData[i][3]}");
                     Console.WriteLine($"strData[i][4]: {strData[i][4]}");
                     // You can choose to skip or handle this row as needed
-                }
+                }*/
+
+                /* string[] validFormats = { "dd/MM/yyyy HH:mm", "d/M/yyyy HH:mm", "dd-MM-yyyy HH:mm" }; // Add more formats if needed
+
+                 if (strData[i][0].Contains('/') || strData[i][0].Contains('-'))
+                 {
+                     // This format is like the original file
+                     if (DateTime.TryParseExact(strData[i][0], validFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTimeValue) &&
+                         int.TryParse(strData[i][1], out int intValue1) &&
+                         int.TryParse(strData[i][2], out int intValue2) &&
+                         float.TryParse(strData[i][3], out float floatValue1) &&
+                         float.TryParse(strData[i][4], out float floatValue2))
+                     {
+                         ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
+                     }
+                 }
+                 else
+                 {
+                     // This format is like the subfile
+                     if (DateTime.TryParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTimeValue) &&
+                         int.TryParse(strData[i][1], out int intValue1) &&
+                         int.TryParse(strData[i][2], out int intValue2) &&
+                         float.TryParse(strData[i][3], out float floatValue1) &&
+                         float.TryParse(strData[i][4], out float floatValue2))
+                     {
+                         ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
+                     }
+                 }*/
+
 
                 //float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
                 // Accumulate absolute values for A and B
