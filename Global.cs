@@ -136,7 +136,7 @@ namespace InclinoView
             return true;
         }
 
-        public static short DeleteBorehole(ref short id)
+        public static short DeleteBorehole(ref short id)// check this function 
         {
             sqlite_cmd.CommandText = " DELETE FROM Boreholes WHERE Id=" + id;
             return (short)sqlite_cmd.ExecuteNonQuery();

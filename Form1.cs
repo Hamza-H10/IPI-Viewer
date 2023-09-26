@@ -13,7 +13,8 @@ using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using System.IO;
 
-
+//change the location of Database to the app data location so that it doesent have any error storing the app data. currently I have changed to myCustomFolderPath.
+//change it back to Application.LocalUserAppDataPath
 namespace InclinoView
 {
     /// <summary>
@@ -178,7 +179,6 @@ namespace InclinoView
                                FileSystem.FileCopy(strFileName, strFileNew);//(source path, target path)
                                 
                                 Console.WriteLine(strData[1][0]);
-
                                 // Parse the depth value from the CSV data
                                 //depth = float.Parse(strData[10][2]);
                                 depth = float.Parse(strData[4][2]);
@@ -196,10 +196,12 @@ namespace InclinoView
                                 // Reload the list
                                 ReloadList();
                                 cnt = (short)(cnt + 1);
+
+                                SplitCSVDataIntoSubFiles(strData);
                             }
                             //-----------------------------------------------------------------------------------------------------------------------------
                             // Split the CSV data into sub-files based on DateTime
-                            SplitCSVDataIntoSubFiles(strData);
+                            
                             //---------------------------------------------------------------------------------------------------------------------------                           
                         }
                     }
@@ -216,33 +218,104 @@ namespace InclinoView
                 // Display the summary message to the user
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
+        }       
+        private void SplitCSVDataIntoSubFiles(string[][] strData)
+        {
+            Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+
+            // Create a dictionary to store sub-file data by date and time
+            Dictionary<string, Dictionary<string, List<string>>> subFiles = new Dictionary<string, Dictionary<string, List<string>>>();
+
+            // Iterate through the CSV data starting from the row with column headers (strData[3][0])
+            for (int i = 4; i < strData.Length; i++)
+            {
+                // Parse the DateTime value from the "DateTime" column
+                DateTime dateTime;
+                string datePart = "";
+                string timePart = "";
+
+                if (DateTime.TryParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                {
+                    // Extract the date and time parts
+                    datePart = dateTime.ToString("dd-MM-yyyy");
+                    Console.WriteLine("datePart: " + datePart);
+                    timePart = dateTime.ToString("HH_mm"); // Replace ":" with "_"
+                    Console.WriteLine("timePart: " + timePart);
+                }
+                else
+                {
+                    // Handle the case where date parsing fails (invalid date format)
+                    Console.WriteLine($"Error parsing date on row {i + 1}: Invalid date format");
+                    continue; // Skip this row and continue with the next
+                }
+
+                // Check if the date is already in the dictionary
+                if (!subFiles.ContainsKey(datePart))
+                {
+                    // Create a new dictionary for this date to store data by time
+                    subFiles[datePart] = new Dictionary<string, List<string>>();
+                }
+
+                // Check if the time is already in the dictionary for this date
+                if (!subFiles[datePart].ContainsKey(timePart))
+                {
+                    // Create a new list for this time
+                    subFiles[datePart][timePart] = new List<string>();
+                }
+
+                // Add the row to the list for the corresponding date and time
+                subFiles[datePart][timePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
+
+                // Now 'subFiles' contains the data grouped by date and time, and any parsing errors are logged
+            }
+
+            // Create sub-files based on the dictionary
+            foreach (var dateEntry in subFiles)
+            {
+                string date = dateEntry.Key;
+                Console.WriteLine("date: " + date);
+
+                foreach (var timeEntry in dateEntry.Value)
+                {
+                    string time = timeEntry.Key;
+                    Console.WriteLine("time: " + time);
+                    List<string> rows = timeEntry.Value;
+
+                    // Create a sub-file with the date and time as the filename
+                    string subFileName = $"{date} {time}.csv"; // You can change the file extension as needed
+                    Console.WriteLine("subFileName: " + subFileName);
+
+                    File.WriteAllLines(subFileName, rows);               
+                }
+            }
         }
+        //==================================================================================================================================
         /*       private void SplitCSVDataIntoSubFiles(string[][] strData)
-               {
-                   Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
-                   // Create a dictionary to store sub-file data by date
-                   Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
-
-                   // Iterate through the CSV data starting from the row with column headers (strData[3][0])
-                   for (int i = 4; i < strData.Length; i++)
-                   {
-                       // Parse the DateTime value from the "DateTime" column
-                       DateTime dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-
-                       // Extract the date and time parts
-                       string datePart = dateTime.ToString("dd-MM-yyyy");
-                       string timePart = dateTime.ToString("HH:mm");
-
-                       // Check if the date is already in the dictionary
-                       if (!subFiles.ContainsKey(datePart))
                        {
-                           // Create a new list for this date
-                           subFiles[datePart] = new List<string>();
-                       }
+                           Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+                           // Create a dictionary to store sub-file data by date
+                           Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
 
-                       // Add the row to the list for the corresponding date
-                       subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
-                   }*/
+                           // Iterate through the CSV data starting from the row with column headers (strData[3][0])
+                           for (int i = 4; i < strData.Length; i++)
+                           {
+                               // Parse the DateTime value from the "DateTime" column
+                               DateTime dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+
+                               // Extract the date and time parts
+                               string datePart = dateTime.ToString("dd-MM-yyyy");
+                               string timePart = dateTime.ToString("HH:mm");
+
+                               // Check if the date is already in the dictionary
+                               if (!subFiles.ContainsKey(datePart))
+                               {
+                                   // Create a new list for this date
+                                   subFiles[datePart] = new List<string>();
+                               }
+
+                               // Add the row to the list for the corresponding date
+                               subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
+                           }*/
         /* private void SplitCSVDataIntoSubFiles(string[][] strData)//gpt
          {
              Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
@@ -283,70 +356,7 @@ namespace InclinoView
 
                  // Now 'subFiles' contains the data grouped by date, and any parsing errors are logged
              }*/
-
-        private void SplitCSVDataIntoSubFiles(string[][] strData)//DateTime.TryParseExact()
-        {
-            Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
-
-            // Create a dictionary to store sub-file data by date
-            Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
-
-            // Iterate through the CSV data starting from the row with column headers (strData[3][0])
-            for (int i = 4; i < strData.Length; i++)
-            {
-                // Parse the DateTime value from the "DateTime" column
-                DateTime dateTime;
-                string datePart = "";
-                string timePart = "";
-
-                if (DateTime.TryParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-                {
-                    // Extract the date and time parts
-                    datePart = dateTime.ToString("dd-MM-yyyy");
-                    timePart = dateTime.ToString("HH:mm");
-                }
-                else
-                {
-                    // Handle the case where date parsing fails (invalid date format)
-                    Console.WriteLine($"Error parsing date on row {i + 1}: Invalid date format");
-                    continue; // Skip this row and continue with the next
-                }
-
-                // Check if the date is already in the dictionary
-                if (!subFiles.ContainsKey(datePart))
-                {
-                    // Create a new list for this date
-                    subFiles[datePart] = new List<string>(); 
-                }
-
-                // Add the row to the list for the corresponding date
-                subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
-
-                // Now 'subFiles' contains the data grouped by date, and any parsing errors are logged
-            }
-                // Create sub-files based on the dictionary
-                foreach (var kvp in subFiles)
-            {
-                string date = kvp.Key;
-                List<string> rows = kvp.Value;
-
-                // Get the maximum time value for this date
-                string maxTime = rows.Max(row => row.Split('\t')[1]); // Assuming the time is in the second column
-                Console.WriteLine("maxTime: "+ maxTime);
-
-                // Filter rows with the maximum time value
-                List<string> filteredRows = rows.Where(row => row.Split('\t')[1] == maxTime).ToList();
-                Console.WriteLine("filteredRows: "+filteredRows);
-
-                // Create a sub-file with the date as the filename
-                string subFileName = $"{date}.csv"; // You can change the file extension as needed
-                Console.WriteLine("subFileName: "+subFileName);
-
-                File.WriteAllLines(subFileName, filteredRows);
-            }
-        }
         //========================================================================================================================
-
         /*private void tbImport_Click(object sender, EventArgs e)
         {
             short cnt = 0;
