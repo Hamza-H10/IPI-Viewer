@@ -226,6 +226,9 @@ namespace InclinoView
             // Create a dictionary to store sub-file data by date and time
             Dictionary<string, Dictionary<string, List<string>>> subFiles = new Dictionary<string, Dictionary<string, List<string>>>();
 
+            // Initialize a counter for sub-files
+            int subFileCount = 0;
+
             // Iterate through the CSV data starting from the row with column headers (strData[3][0])
             for (int i = 4; i < strData.Length; i++)
             {
@@ -267,7 +270,11 @@ namespace InclinoView
                 subFiles[datePart][timePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
 
                 // Now 'subFiles' contains the data grouped by date and time, and any parsing errors are logged
+                // Increment the sub-file count
+                subFileCount++;
             }
+            // Print the total number of sub-files created
+            Console.WriteLine($"Total number of sub-files created: {subFileCount}");
 
             // Create sub-files based on the dictionary
             foreach (var dateEntry in subFiles)
@@ -284,6 +291,10 @@ namespace InclinoView
                     // Create a sub-file with the date and time as the filename
                     string subFileName = $"{date} {time}.csv"; // You can change the file extension as needed
                     Console.WriteLine("subFileName: " + subFileName);
+
+                    // Get the directory path of subFileName
+                    string directoryPath = Path.GetDirectoryName(subFileName);
+                    Console.WriteLine("Directory Path: " + directoryPath);
 
                     File.WriteAllLines(subFileName, rows);               
                 }
