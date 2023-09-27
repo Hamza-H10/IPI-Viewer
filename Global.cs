@@ -11,7 +11,7 @@ namespace InclinoView
     static class GlobalCode
     {
         public class BoreHole
-        {
+        {  
             public short Id;
             public string SiteName;
             public string Location;
@@ -21,8 +21,7 @@ namespace InclinoView
             public string BaseFile;
         }
 
-        private static SQLiteConnection sqlite_conn;
-         
+        private static SQLiteConnection sqlite_conn;         
         private static SQLiteCommand sqlite_cmd;
         private static SQLiteDataReader sqlite_datareader;
         private static SQLiteDataAdapter sqliteAdapter;
@@ -30,15 +29,19 @@ namespace InclinoView
 
         public static void OpenDatabase()
         {
+            Console.WriteLine("Now Inside the OpenDataBase() function");
 
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            Console.WriteLine("Local User App Data Path: " + appDataPath);
             // create a new database connection: with file data.sqlite
-            //sqlite_conn = new SQLiteConnection("Data Source=" + Application.LocalUserAppDataPath + @"\data.sqlite;Version=3;");
+            sqlite_conn = new SQLiteConnection("Data Source=" + Application.LocalUserAppDataPath + @"\data.sqlite;Version=3;");
 
+//---------------------------------------------------------------------------------------------------------------------------------------         
             // Example: Get the path to the My Documents folder
-            string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            /*string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Console.WriteLine("My Documents Path: " + myCustomFolderPath);
-            sqlite_conn = new SQLiteConnection("Data Source=" + myCustomFolderPath + "\\data.sqlite;Version=3;");
-
+            sqlite_conn = new SQLiteConnection("Data Source=" + myCustomFolderPath + "\\data.sqlite;Version=3;");*/
+//---------------------------------------------------------------------------------------------------------------------------------------
             /*string appFolderPath = AppDomain.CurrentDomain.BaseDirectory;
             string dbFilePath = Path.Combine(appFolderPath, "data.sqlite");
             sqlite_conn = new SQLiteConnection("Data Source=" + dbFilePath + ";Version=3;");*/
@@ -64,6 +67,7 @@ namespace InclinoView
 
         public static void CloseDatabase()
         {
+            Console.WriteLine("Inside CloseDatabase");
             sqlite_cmd.Dispose();
             sqlite_conn.Close();
         }
@@ -72,7 +76,7 @@ namespace InclinoView
         {
             short result;
             //******************************************
-            //yaha change kiya 'or replce'. pehle nhi tha
+           
             sqlite_cmd.CommandText = @" INSERT OR REPLACE INTO Boreholes (
                 [Id], [SITENAME], [LOCATION], [DEPTH], [BASEFILE] )
 
@@ -221,8 +225,9 @@ namespace InclinoView
         //--------------------------------------------------------------------------------------------------------------------------
         public static string GetBoreholeDirectory(ref short bhnum)
         {
-            //return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
-            return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
+            Console.WriteLine("Inside GetBoreholeDirectory");
+            return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
+            //return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
         }
     }
 }

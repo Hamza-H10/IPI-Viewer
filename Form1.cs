@@ -57,6 +57,7 @@ namespace InclinoView
 
                 // Populate the list box with borehole information
                 foreach (var bitem in listBH)
+                    
                     lstBoreholes.Items.Add("[" + bitem.Id.ToString("D2") + "] " + bitem.SiteName + " - " + bitem.Location);
 
                 // Configure list box selection mode and toolbar
@@ -135,6 +136,7 @@ namespace InclinoView
                     // Create a temporary file name and extract the file name
                     string tempFileName = strFileName;
                     string strFileNew = strFileName.Split('\\').Last();
+                    Console.WriteLine("strFileNew: "+strFileNew);
 
                     // Check if the file extension is "csv" (case-insensitive)
                     if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
@@ -177,10 +179,17 @@ namespace InclinoView
                                 //MAKE CHANGES HERE: COPY THE FILES TO THE DESTINATION AFTER THE CSV FILE IS SPLITTED INTO ITS SUB FILES
                                 // Copy the selected file to the destination directory
                                FileSystem.FileCopy(strFileName, strFileNew);//(source path, target path)
-                                
-                                Console.WriteLine(strData[1][0]);
-                                // Parse the depth value from the CSV data
-                                //depth = float.Parse(strData[10][2]);
+
+                                // Copy the selected file to the destination directory
+                                string destinationFilePath = Path.Combine(strDirName, Path.GetFileName(strFileName)); // Construct the destination file path
+                                FileSystem.FileCopy(strFileName, destinationFilePath); // Copy the file
+                                                                                       // Now, 'destinationFilePath' contains the full path to the copied file
+                                Console.WriteLine("Copied file path: " + destinationFilePath);
+
+                                SplitCSVDataIntoSubFiles(strData, strDirName, destinationFilePath);
+
+                                //Console.WriteLine(strData[1][0]);
+
                                 depth = float.Parse(strData[4][2]);
 
                                 // Create a new BoreHole object and add/update it
@@ -192,21 +201,17 @@ namespace InclinoView
                                 {
                                     GlobalCode.UpdateBorehole(ref bh);
                                 }
-
+                               
                                 // Reload the list
                                 ReloadList();
-                                cnt = (short)(cnt + 1);
-
-                                SplitCSVDataIntoSubFiles(strData);
+                                cnt = (short)(cnt + 1);                               
                             }
                             //-----------------------------------------------------------------------------------------------------------------------------
                             // Split the CSV data into sub-files based on DateTime
-                            
-                            //---------------------------------------------------------------------------------------------------------------------------                           
+                            //-----------------------------------------------------------------------------------------------------------------------------                           
                         }
                     }
                 }
-
                 // Prepare a summary message with import results
                 if (cnt > 0)
                     msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
@@ -218,10 +223,14 @@ namespace InclinoView
                 // Display the summary message to the user
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
-        }       
-        private void SplitCSVDataIntoSubFiles(string[][] strData)
+        }
+        private void SplitCSVDataIntoSubFiles(string[][] strData, string strDirName, string destinationFilePath)
         {
             Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+
+            // Define a base directory where you want to store the sub-files
+            string baseDirectory = strDirName; // Change this to your desired directory
+            Console.WriteLine(strDirName);
 
             // Create a dictionary to store sub-file data by date and time
             Dictionary<string, Dictionary<string, List<string>>> subFiles = new Dictionary<string, Dictionary<string, List<string>>>();
@@ -272,7 +281,8 @@ namespace InclinoView
                 // Now 'subFiles' contains the data grouped by date and time, and any parsing errors are logged
                 // Increment the sub-file count
                 subFileCount++;
-            }
+
+        }
             // Print the total number of sub-files created
             Console.WriteLine($"Total number of sub-files created: {subFileCount}");
 
@@ -292,166 +302,203 @@ namespace InclinoView
                     string subFileName = $"{date} {time}.csv"; // You can change the file extension as needed
                     Console.WriteLine("subFileName: " + subFileName);
 
-                    // Get the directory path of subFileName
-                    string directoryPath = Path.GetDirectoryName(subFileName);
+                    // Construct the destination path for the sub-file in the borehole directory
+                    string destinationPath = Path.Combine(strDirName, subFileName);
+                    Console.WriteLine("Destination Path: " + destinationPath);
+
+                    // Read the contents of the sub-file and print the rows
+                    string[] fileContents = File.ReadAllLines(subFileName);
+                    foreach (string row in fileContents)
+                    {
+                        Console.WriteLine(row);
+                    }
+
+                    // Save the sub-file to the borehole directory
+                    File.WriteAllLines(destinationPath, rows);
+
+                    //File.WriteAllLines(subFileName, rows);
+                    // Copy the sub-file to the destination directory using FileSystem.FileCopy
+                    //FileSystem.FileCopy(subFileName, Path.Combine(strDirName, subFileName));
+                    // Copy the sub-file to the destination directory using Path.Combine
+                    /* string destinationPath = Path.Combine(strDirName, subFileName);
+
+                     if (File.Exists(destinationPath))
+                     {
+                         Console.WriteLine($"The file {destinationPath} already exists.");
+                     }
+                     else
+                     {
+                         // Copy the sub-file to the destination directory
+                         FileSystem.FileCopy(subFileName, destinationPath);
+                     }*/
+                    // Get the directory path by combining the base directory with subFileName
+                    /*string directoryPath = Path.Combine(baseDirectory, subFileName);
+
+                    // Now 'directoryPath' contains the full path to the directory where the sub-file should be saved
                     Console.WriteLine("Directory Path: " + directoryPath);
 
-                    File.WriteAllLines(subFileName, rows);               
+                    // Create the directory if it doesn't exist
+                    Directory.CreateDirectory(directoryPath);
+
+                    // Write the sub-file to the directory
+                    File.WriteAllLines(Path.Combine(directoryPath, subFileName), rows);*/
+
                 }
             }
         }
-        //==================================================================================================================================
-        /*       private void SplitCSVDataIntoSubFiles(string[][] strData)
-                       {
-                           Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
-                           // Create a dictionary to store sub-file data by date
-                           Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
 
-                           // Iterate through the CSV data starting from the row with column headers (strData[3][0])
-                           for (int i = 4; i < strData.Length; i++)
+            //==================================================================================================================================
+            /*       private void SplitCSVDataIntoSubFiles(string[][] strData)
                            {
-                               // Parse the DateTime value from the "DateTime" column
-                               DateTime dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                               Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+                               // Create a dictionary to store sub-file data by date
+                               Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
 
-                               // Extract the date and time parts
-                               string datePart = dateTime.ToString("dd-MM-yyyy");
-                               string timePart = dateTime.ToString("HH:mm");
-
-                               // Check if the date is already in the dictionary
-                               if (!subFiles.ContainsKey(datePart))
+                               // Iterate through the CSV data starting from the row with column headers (strData[3][0])
+                               for (int i = 4; i < strData.Length; i++)
                                {
-                                   // Create a new list for this date
-                                   subFiles[datePart] = new List<string>();
-                               }
+                                   // Parse the DateTime value from the "DateTime" column
+                                   DateTime dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
 
-                               // Add the row to the list for the corresponding date
-                               subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
-                           }*/
-        /* private void SplitCSVDataIntoSubFiles(string[][] strData)//gpt
-         {
-             Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+                                   // Extract the date and time parts
+                                   string datePart = dateTime.ToString("dd-MM-yyyy");
+                                   string timePart = dateTime.ToString("HH:mm");
 
-             // Create a dictionary to store sub-file data by date
-             Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
+                                   // Check if the date is already in the dictionary
+                                   if (!subFiles.ContainsKey(datePart))
+                                   {
+                                       // Create a new list for this date
+                                       subFiles[datePart] = new List<string>();
+                                   }
 
-             // Iterate through the CSV data starting from the row with column headers (strData[3][0])
-             for (int i = 4; i < strData.Length; i++)
+                                   // Add the row to the list for the corresponding date
+                                   subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
+                               }*/
+            /* private void SplitCSVDataIntoSubFiles(string[][] strData)//gpt
              {
-                 // Parse the DateTime value from the "DateTime" column
-                 DateTime dateTime;
-                 string datePart = "";
-                 try
+                 Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
+
+                 // Create a dictionary to store sub-file data by date
+                 Dictionary<string, List<string>> subFiles = new Dictionary<string, List<string>>();
+
+                 // Iterate through the CSV data starting from the row with column headers (strData[3][0])
+                 for (int i = 4; i < strData.Length; i++)
                  {
-                     dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                     // Parse the DateTime value from the "DateTime" column
+                     DateTime dateTime;
+                     string datePart = "";
+                     try
+                     {
+                         dateTime = DateTime.ParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
 
-                     // Extract the date and time parts
-                     datePart = dateTime.ToString("dd-MM-yyyy");
-                     string timePart = dateTime.ToString("HH:mm");
-                 }
-                 catch (FormatException ex)
-                 {
-                     // Handle the case where date parsing fails (invalid date format)
-                     Console.WriteLine($"Error parsing date on row {i + 1}: {ex.Message}");
-                     continue; // Skip this row and continue with the next
-                 }
+                         // Extract the date and time parts
+                         datePart = dateTime.ToString("dd-MM-yyyy");
+                         string timePart = dateTime.ToString("HH:mm");
+                     }
+                     catch (FormatException ex)
+                     {
+                         // Handle the case where date parsing fails (invalid date format)
+                         Console.WriteLine($"Error parsing date on row {i + 1}: {ex.Message}");
+                         continue; // Skip this row and continue with the next
+                     }
 
-                 // Check if the date is already in the dictionary
-                 if (!subFiles.ContainsKey(datePart))
-                 {
-                     // Create a new list for this date
-                     subFiles[datePart] = new List<string>();
-                 }
+                     // Check if the date is already in the dictionary
+                     if (!subFiles.ContainsKey(datePart))
+                     {
+                         // Create a new list for this date
+                         subFiles[datePart] = new List<string>();
+                     }
 
-                 // Add the row to the list for the corresponding date
-                 subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
+                     // Add the row to the list for the corresponding date
+                     subFiles[datePart].Add(string.Join("\t", strData[i])); // Assuming tab-separated values
 
-                 // Now 'subFiles' contains the data grouped by date, and any parsing errors are logged
-             }*/
-        //========================================================================================================================
-        /*private void tbImport_Click(object sender, EventArgs e)
-        {
-            short cnt = 0;
-            short cntError = 0;
-            short cntRepeat = 0;
-
-            string msgString = "Import Summary:" + Environment.NewLine; //Environment.NewLine = "\r\n"
-            Console.WriteLine(msgString);
-
-
-            if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
+                     // Now 'subFiles' contains the data grouped by date, and any parsing errors are logged
+                 }*/
+            //========================================================================================================================
+            /*private void tbImport_Click(object sender, EventArgs e)
             {
+                short cnt = 0;
+                short cntError = 0;
+                short cntRepeat = 0;
 
-                foreach (string strFileName in OpenFileDialog1.FileNames)
+                string msgString = "Import Summary:" + Environment.NewLine; //Environment.NewLine = "\r\n"
+                Console.WriteLine(msgString);
+
+
+                if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    Console.WriteLine(strFileName);
 
-                    string tempFileName = strFileName; // Create a temporary variable
-                    Console.WriteLine("tempFileName: " + tempFileName);
-
-                    string strFileNew = strFileName.Split('\\').Last();//opening a string file dialogue here when selected the already imported file
-                    Console.WriteLine("strFileNew: " + strFileNew);
-
-                    if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                    foreach (string strFileName in OpenFileDialog1.FileNames)
                     {
-                        string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);
+                        Console.WriteLine(strFileName);
 
-                        Console.WriteLine(strData.Length);
+                        string tempFileName = strFileName; // Create a temporary variable
+                        Console.WriteLine("tempFileName: " + tempFileName);
 
-                        if (strData.Length < 5)
+                        string strFileNew = strFileName.Split('\\').Last();//opening a string file dialogue here when selected the already imported file
+                        Console.WriteLine("strFileNew: " + strFileNew);
+
+                        if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                         {
-                            cntError = (short)(cntError + 1);
-                        }
-                        else
-                        {
-                            // Catch 4 parameters for the new borehole
-                            short borehole_num;
-                            float depth;
-                            string strDirName;
+                            string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);
 
-                            borehole_num = short.Parse(strData[0][1]);
-                            strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
-                            strFileNew = strDirName + @"\" + strFileNew;
-                            Console.WriteLine("strFileNew: " + strFileName);
+                            Console.WriteLine(strData.Length);
 
-                            if (System.IO.File.Exists(strFileNew))
+                            if (strData.Length < 5)
                             {
-                                cntRepeat = (short)(cntRepeat + 1);
+                                cntError = (short)(cntError + 1);
                             }
                             else
                             {
-                                if (!System.IO.Directory.Exists(strDirName))
-                                {
-                                    System.IO.Directory.CreateDirectory(strDirName);
-                                }
-                                FileSystem.FileCopy(strFileName, strFileNew);
-                                Console.WriteLine(strData[1][0]);
-                                // depth = float.Parse(strData[4][0]);
-                                Console.WriteLine("strData[10][2]: " + strData[10][2]);
-                                depth = float.Parse(strData[10][2]);//check here if the value comes or not
+                                // Catch 4 parameters for the new borehole
+                                short borehole_num;
+                                float depth;
+                                string strDirName;
 
-                                var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
-                                if (!GlobalCode.AddBorehole(ref bh))
+                                borehole_num = short.Parse(strData[0][1]);
+                                strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
+                                strFileNew = strDirName + @"\" + strFileNew;
+                                Console.WriteLine("strFileNew: " + strFileName);
+
+                                if (System.IO.File.Exists(strFileNew))
                                 {
-                                    GlobalCode.UpdateBorehole(ref bh);
+                                    cntRepeat = (short)(cntRepeat + 1);
                                 }
-                                ReloadList();
-                                cnt = (short)(cnt + 1);
+                                else
+                                {
+                                    if (!System.IO.Directory.Exists(strDirName))
+                                    {
+                                        System.IO.Directory.CreateDirectory(strDirName);
+                                    }
+                                    FileSystem.FileCopy(strFileName, strFileNew);
+                                    Console.WriteLine(strData[1][0]);
+                                    // depth = float.Parse(strData[4][0]);
+                                    Console.WriteLine("strData[10][2]: " + strData[10][2]);
+                                    depth = float.Parse(strData[10][2]);//check here if the value comes or not
+
+                                    var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
+                                    if (!GlobalCode.AddBorehole(ref bh))
+                                    {
+                                        GlobalCode.UpdateBorehole(ref bh);
+                                    }
+                                    ReloadList();
+                                    cnt = (short)(cnt + 1);
+                                }
                             }
                         }
                     }
-                }
-                if (cnt > 0)
-                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
-                if (cntError > 0)
-                    msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
-                if (cntRepeat > 0)
-                    msgString += cntRepeat + " file(s) were already imported into the application, hence ignored." + Constants.vbCrLf;
+                    if (cnt > 0)
+                        msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
+                    if (cntError > 0)
+                        msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
+                    if (cntRepeat > 0)
+                        msgString += cntRepeat + " file(s) were already imported into the application, hence ignored." + Constants.vbCrLf;
 
-                Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
-            }
-        }*/
-        //------------------------------------------------------------------------------------------------------------------------------------
-        private void tbBack_Click(object sender, EventArgs e)
+                    Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
+                }
+            }*/
+            //------------------------------------------------------------------------------------------------------------------------------------
+            private void tbBack_Click(object sender, EventArgs e)
         {
             if (boreHoleSelected > 0)
             {
