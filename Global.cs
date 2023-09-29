@@ -36,12 +36,12 @@ namespace InclinoView
             // create a new database connection: with file data.sqlite
             sqlite_conn = new SQLiteConnection("Data Source=" + Application.LocalUserAppDataPath + @"\data.sqlite;Version=3;");
 
-//---------------------------------------------------------------------------------------------------------------------------------------         
+            //---------------------------------------------------------------------------------------------------------------------------------------         
             // Example: Get the path to the My Documents folder
-            /*string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Console.WriteLine("My Documents Path: " + myCustomFolderPath);
-            sqlite_conn = new SQLiteConnection("Data Source=" + myCustomFolderPath + "\\data.sqlite;Version=3;");*/
-//---------------------------------------------------------------------------------------------------------------------------------------
+            /* string myCustomFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+             Console.WriteLine("My Documents Path: " + myCustomFolderPath);
+             sqlite_conn = new SQLiteConnection("Data Source=" + myCustomFolderPath + "\\data.sqlite;Version=3;");*/
+            //---------------------------------------------------------------------------------------------------------------------------------------
             /*string appFolderPath = AppDomain.CurrentDomain.BaseDirectory;
             string dbFilePath = Path.Combine(appFolderPath, "data.sqlite");
             sqlite_conn = new SQLiteConnection("Data Source=" + dbFilePath + ";Version=3;");*/
