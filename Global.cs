@@ -187,13 +187,14 @@ namespace InclinoView
 
                     while (!MyReader.EndOfData) // Continue reading until the end of the file is reached
                     {
-                        try
+                        try//in the orginal code of C# the caret returns from the data.Add(split); line. It dosent leave the try block
                         {
                             string[] split = MyReader.ReadFields(); // Read a line and split it into an array of strings
                             data.Add(split); // Add the array to the list
-                        }
+                        }//at this point the original code base make display the whole report
                         catch (Microsoft.VisualBasic.FileIO.MalformedLineException ex)
                         {
+                            Console.WriteLine("inside Catch block of MyReader");
                             // Handle a malformed line exception (if encountered)
                             // In this case, the line is considered invalid and skipped
                             ReadCSVFileRet = null; // Set the result to null
