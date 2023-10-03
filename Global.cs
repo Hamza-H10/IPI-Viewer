@@ -7,7 +7,6 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace InclinoView
 {
-
     static class GlobalCode
     {
         public class BoreHole

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InclinoView", "InclinoView.csproj", "{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "..\Setup1\Setup1.vdproj", "{553C7865-2926-4105-BAF1-F1497E2FE02E}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "..\Setup1\Setup1.vdproj", "{2AD9176C-FB7F-4603-A60D-88B239BF59AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{553C7865-2926-4105-BAF1-F1497E2FE02E}.All|Any CPU.ActiveCfg = Debug
-		{553C7865-2926-4105-BAF1-F1497E2FE02E}.Debug|Any CPU.ActiveCfg = Debug
-		{553C7865-2926-4105-BAF1-F1497E2FE02E}.Release|Any CPU.ActiveCfg = Release
+		{2AD9176C-FB7F-4603-A60D-88B239BF59AE}.All|Any CPU.ActiveCfg = Debug
+		{2AD9176C-FB7F-4603-A60D-88B239BF59AE}.Debug|Any CPU.ActiveCfg = Debug
+		{2AD9176C-FB7F-4603-A60D-88B239BF59AE}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

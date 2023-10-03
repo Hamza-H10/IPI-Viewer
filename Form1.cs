@@ -984,7 +984,7 @@ namespace InclinoView
                 }
 
                 // Change the background color of the rows
-                DataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
+                DataGridView1.RowsDefaultCellStyle.BackColor = Color.FloralWhite;
                 DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGreen;
 
 
