@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace InclinoView.My
+namespace InclinoRS485.My
 {
     internal static partial class MyProject
     {

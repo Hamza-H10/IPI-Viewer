@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 
-namespace InclinoView
+namespace InclinoRS485
 {
     static class GlobalCode
     {

@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 
 // Review the values of the assembly attributes
 
-[assembly: AssemblyTitle("InclinoView")]
+[assembly: AssemblyTitle("InclinoRS485")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("InclinoView")]
+[assembly: AssemblyProduct("InclinoRS485")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 

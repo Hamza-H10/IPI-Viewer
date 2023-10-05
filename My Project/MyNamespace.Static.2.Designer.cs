@@ -10,7 +10,7 @@ using Microsoft.VisualBasic;
 // See the LICENSE file in the project root for more information.
 
 // See Compiler::LoadXmlSolutionExtension
-namespace InclinoView.My
+namespace InclinoRS485.My
 {
     [Embedded()]
     [DebuggerNonUserCode()]

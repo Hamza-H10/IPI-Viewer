@@ -91,7 +91,7 @@ using Microsoft.VisualBasic;
 /* TODO ERROR: Skipped IfDirectiveTrivia
 #If _MYTYPE <> "Empty" Then
 */
-namespace InclinoView.My
+namespace InclinoRS485.My
 {
 
     /* TODO ERROR: Skipped IfDirectiveTrivia

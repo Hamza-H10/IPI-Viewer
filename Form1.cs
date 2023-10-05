@@ -18,7 +18,7 @@ using System.Runtime.InteropServices.ComTypes;
 
 //change the location of Database to the app data location so that it doesent have any error storing the app data. currently I have changed to myCustomFolderPath.
 //change it back to Application.LocalUserAppDataPath
-namespace InclinoView
+namespace InclinoRS485
 {
     /// <summary>
     /// This class represents the main form of the application.
@@ -100,11 +100,12 @@ namespace InclinoView
             Label3.ForeColor = System.Drawing.Color.FromArgb(254, 192, 7);
             Label4.ForeColor = System.Drawing.Color.FromArgb(96, 125, 138);
             Label5.ForeColor = System.Drawing.Color.FromArgb(0, 187, 211);
+            
 
             // Open the application's database
             GlobalCode.OpenDatabase();
             // _DeleteAllBoreholes() ' temporary delete all
-            tbGraphType.SelectedIndex = 0;
+            //tbGraphType.SelectedIndex = 0;
 
             // Load the list of boreholes
             ReloadList();
@@ -199,7 +200,7 @@ namespace InclinoView
                 }
                 // Prepare a summary message with import results
                 if (cnt > 0)
-                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
+                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoRS485 successfully." + Constants.vbCrLf;
                 if (cntError > 0)
                     msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
                 if (cntRepeat > 0)
@@ -378,7 +379,7 @@ namespace InclinoView
                     }
                 }
                 if (cnt > 0)
-                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoView successfully." + Constants.vbCrLf;
+                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoRS485 successfully." + Constants.vbCrLf;
                 if (cntError > 0)
                     msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
                 if (cntRepeat > 0)
@@ -996,7 +997,7 @@ namespace InclinoView
                 tbAxisX.Enabled = false;
                 tbAxisY.Enabled = false;
                 tbZoom.Enabled = false;
-                tbGraphType.Enabled = false;
+                //tbGraphType.Enabled = false;
             }
         }
         //----------------------------------------------------------------------------------------------------------------------
@@ -1034,7 +1035,7 @@ namespace InclinoView
             // Create X-axis with label formatter, range, and styling
             var XAxis = new Axis()
             {
-                Title = "Displacement (mm)",
+                Title = "Displacement (degree)",
                 LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
                 MaxValue = 80d,
                 MinValue = -80,
@@ -1236,12 +1237,13 @@ namespace InclinoView
                             Label5.Text = strFile;
                             break;
                         }
+                    
                 }
                 cnt = (short)(cnt + 1);
             }
 
             // Update Label6 based on graph type
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
+            /*if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
             {
                 Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
             }
@@ -1249,7 +1251,7 @@ namespace InclinoView
             {
                 Label6.Text = "";
             }
-
+*/
             Console.WriteLine(seriesCollection);
             // Set the series collection for the chart
             CartesianChart1.Series = seriesCollection;
@@ -1289,7 +1291,7 @@ namespace InclinoView
                 return;
             if (lstBoreholes.SelectedItems.Count == 0)
                 return;
-            if (lstBoreholes.SelectedItems.Count > 5)
+            if (lstBoreholes.SelectedItems.Count > 7)
             {
                 Interaction.MsgBox("You have selected " + lstBoreholes.SelectedItems.Count + " files. You can select maximum 5 files for plotting graph", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                 return;
@@ -1305,7 +1307,9 @@ namespace InclinoView
             Label3.Text = "";
             Label4.Text = "";
             Label5.Text = "";
+            
             Label6.Text = @"View Graph of one or multiple files.";
+            
 
             if (bhIndex >= 0)
             {
