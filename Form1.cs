@@ -100,7 +100,8 @@ namespace InclinoRS485
             Label3.ForeColor = System.Drawing.Color.FromArgb(254, 192, 7);
             Label4.ForeColor = System.Drawing.Color.FromArgb(96, 125, 138);
             Label5.ForeColor = System.Drawing.Color.FromArgb(0, 187, 211);
-            
+            label7.ForeColor = System.Drawing.Color.FromArgb(255, 20, 147);
+            label8.ForeColor = System.Drawing.Color.FromArgb(255, 69, 0);
 
             // Open the application's database
             GlobalCode.OpenDatabase();
@@ -942,6 +943,47 @@ namespace InclinoRS485
                     for (i = 0; i <= loopTo3; i++)
                     {
                         strItem = "";
+
+                        if (ds.Rows[row][i] != DBNull.Value)
+                        {
+                            // Check if the value is a DateTime
+                            if (ds.Rows[row][i] is DateTime)
+                            {
+                                // Handle DateTime values by formatting them as a string
+                                strItem = ((DateTime)ds.Rows[row][i]).ToString("yyyy-MM-dd HH:mm:ss");
+                            }
+                            else if (ds.Rows[row][i] is decimal || ds.Rows[row][i] is int)
+                            {
+                                // Handle numeric values by formatting them as a number
+                                strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
+                            }
+                            else
+                            {
+                                // Handle other data types here (e.g., leave as-is or apply custom logic)
+                                strItem = ds.Rows[row][i].ToString();
+                            }
+                        }
+
+                        if (i > 6)
+                        {
+                            bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
+                        }
+                        else
+                        {
+                            bsTextPrintData += " " + strItem.PadLeft(6) + " ";
+                        }
+                    }
+                    bsTextPrintData += Constants.vbCrLf;
+                }
+
+
+                /*var loopTo2 = ds.Rows.Count - 1;            
+                for (row = 0; row <= loopTo2; row++)
+                {
+                    var loopTo3 = (short)(ds.Columns.Count - 1);                 
+                    for (i = 0; i <= loopTo3; i++)
+                    {
+                        strItem = "";
                         if (ds.Rows[row][i] is not DBNull)//DBNull cannot be inherited
                         {
                             strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
@@ -958,9 +1000,8 @@ namespace InclinoRS485
                             //bsTextPrintData += " " + FormatDateTime(ds.Rows[row][i]).PadLeft(6) + " ";
                         }
                     }
-                    bsTextPrintData += Constants.vbCrLf;
-                    //Console.WriteLine(bsTextPrintData);
-                }
+                    bsTextPrintData += Constants.vbCrLf;                
+                }*/
             }
             else
             {
@@ -1237,7 +1278,17 @@ namespace InclinoRS485
                             Label5.Text = strFile;
                             break;
                         }
-                    
+                    case 5:
+                        {
+                            label7.Text = strFile;
+                            break;
+                        }
+                    case 6:
+                        {
+                            label8.Text = strFile;
+                            break;
+                        }
+                        
                 }
                 cnt = (short)(cnt + 1);
             }
@@ -1307,7 +1358,9 @@ namespace InclinoRS485
             Label3.Text = "";
             Label4.Text = "";
             Label5.Text = "";
-            
+            label7.Text = "";
+            label8.Text = "";
+
             Label6.Text = @"View Graph of one or multiple files.";
             
 
