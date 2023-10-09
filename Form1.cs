@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using LiveCharts;
+﻿using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
-using System.IO;
 using NodaTime;
 using NodaTime.Text;
-using System.Runtime.InteropServices.ComTypes;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
-//change the location of Database to the app data location so that it doesent have any error storing the app data. currently I have changed to myCustomFolderPath.
-//change it back to Application.LocalUserAppDataPath
 namespace InclinoRS485
 {
     /// <summary>
@@ -60,7 +56,6 @@ namespace InclinoRS485
 
                 // Populate the list box with borehole information
                 foreach (var bitem in listBH)
-
                     lstBoreholes.Items.Add("[" + bitem.Id.ToString("D2") + "] " + bitem.SiteName + " - " + bitem.Location);
 
                 // Configure list box selection mode and toolbar
@@ -138,8 +133,8 @@ namespace InclinoRS485
                     // Create a temporary file name and extract the file name
                     string tempFileName = strFileName;
                     string strFileNew = strFileName.Split('\\').Last();
-                    
-                   // Check if the file extension is "csv" (case-insensitive)
+
+                    // Check if the file extension is "csv" (case-insensitive)
                     if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                     {
                         // Read the CSV file data into a two-dimensional string array
@@ -161,7 +156,7 @@ namespace InclinoRS485
                             borehole_num = short.Parse(strData[0][1]);
                             strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);
                             strFileNew = strDirName + @"\" + strFileNew;
-                           
+
 
                             // Check if the file already exists (if imported previously)
                             if (System.IO.File.Exists(strFileNew))
@@ -195,7 +190,7 @@ namespace InclinoRS485
                                 // Reload the list
                                 ReloadList();
                                 cnt = (short)(cnt + 1);
-                            }                         
+                            }
                         }
                     }
                 }
@@ -305,7 +300,7 @@ namespace InclinoRS485
                 // Print the total number of sub-files created
                 Console.WriteLine($"Total number of sub-files created: {subFileCount}");
             }
-        }      
+        }
         //========================================================================================================================
         /*private void tbImport_Click(object sender, EventArgs e)
         {
@@ -769,6 +764,7 @@ namespace InclinoRS485
 
             //-------------------------------------------------------------------------------------------------------------------------------------
             //FOR BASE FILE UNCOMMENT THIS WHEN IMPLEMENT FOR BASEfile
+
             // Reset labels and prepare for report generation
             if (listBH[bhIndex].BaseFile is null | string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
@@ -1015,7 +1011,7 @@ namespace InclinoRS485
                 for (i = 0; i <= loopTo4; i++)
                 {
                     DataGridView1.Columns[i].Width = (i > 6) ? 100 : 100;
-                    
+
                     DataGridView1.Columns["Sensor"].DefaultCellStyle.Format = "D"; // "D" format for integers
 
                     // Set the DateTime format for the "DateTime" column                
@@ -1146,7 +1142,7 @@ namespace InclinoRS485
 
             // Loop through selected items
             foreach (string lstItem in lstBoreholes.SelectedItems)//PROBLEM HERE: NOT ENTERING THE LOOP WHEN DEBUGGER IS RUNNING. BUT IF THE FOREACH LOOP IN NOT EXECUTING THEN WHY THE GRAPH GAVE RESPONSE WHEN CHANGED IN THE LAST LINE.
-            {   
+            {
                 Console.WriteLine("Inside foreach loop");
                 // Get the path to the current file
                 string argFileName = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + lstItem;
@@ -1194,7 +1190,7 @@ namespace InclinoRS485
 
                 // Populate line series with data points
                 for (i = 0; i <= loopTo; i++)
-                {   
+                {
                     //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
                     //Val = float.Parse(strData[i][3 + _axisValue]);
                     //Console.WriteLine("_axisValue:" + _axisValue);
@@ -1288,7 +1284,7 @@ namespace InclinoRS485
                             label8.Text = strFile;
                             break;
                         }
-                        
+
                 }
                 cnt = (short)(cnt + 1);
             }
@@ -1307,7 +1303,7 @@ namespace InclinoRS485
             // Set the series collection for the chart
             CartesianChart1.Series = seriesCollection;
         }
- //--------------------------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------------------------
         private void tbAxisX_Click(object sender, EventArgs e)
         {
             if (tbAxisY.Checked == true)
@@ -1353,6 +1349,7 @@ namespace InclinoRS485
 
         private void ResetLabels()
         {
+            Console.WriteLine("Inside ResetLabels function");
             Label1.Text = "";
             Label2.Text = "";
             Label3.Text = "";
@@ -1362,7 +1359,7 @@ namespace InclinoRS485
             label8.Text = "";
 
             Label6.Text = @"View Graph of one or multiple files.";
-            
+
 
             if (bhIndex >= 0)
             {
@@ -1533,6 +1530,7 @@ namespace InclinoRS485
             // If the ListBox has focus, draw a focus rectangle around  _ 
             // the selected item.
             e.DrawFocusRectangle();
+            
         }
 
 
