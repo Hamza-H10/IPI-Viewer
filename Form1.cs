@@ -196,7 +196,7 @@ namespace InclinoRS485
                 }
                 // Prepare a summary message with import results
                 if (cnt > 0)
-                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoRS485 successfully." + Constants.vbCrLf;
+                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoRS485 successfully." + Constants.vbCrLf;//Addition - no. of new subfiles have been created, no. of subfiles were already in the borehole directory,  
                 if (cntError > 0)
                     msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
                 if (cntRepeat > 0)
@@ -207,10 +207,14 @@ namespace InclinoRS485
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
         }
-        private void SplitCSVDataIntoSubFiles(string[][] strData, string strDirName)
-        {
+        private void SplitCSVDataIntoSubFiles(string[][] strData, string strDirName) 
+        {           
             Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
 
+            // Prepare a message string to summarize the import process
+            string msgString = "Import Summary:" + Environment.NewLine;
+
+            int cntSubRepeat = 0;
             // Define a base directory where you want to store the sub-files
             string baseDirectory = strDirName; // Change this to your desired directory
             Console.WriteLine("strDirName: " + strDirName);
@@ -280,6 +284,11 @@ namespace InclinoRS485
                 string subFileName = $"{date} {maxTimePart}.csv"; // You can change the file extension as needed
                 Console.WriteLine("subFileName: " + subFileName);
 
+                if (System.IO.File.Exists(subFileName))
+                {
+                    cntSubRepeat = (short)(cntSubRepeat + 1);
+                }
+
                 // Construct the destination path for the sub-file in the borehole directory
                 string destinationPath = Path.Combine(baseDirectory, subFileName);
                 Console.WriteLine("Destination Path: " + destinationPath);
@@ -291,16 +300,23 @@ namespace InclinoRS485
                 subFileCount++;
 
                 // Read the contents of the sub-file and print the rows
-                string[] fileContents = File.ReadAllLines(destinationPath);
+                /*string[] fileContents = File.ReadAllLines(destinationPath);
                 foreach (string row in fileContents)
                 {
                     Console.WriteLine(row);
-                }
-
-                // Print the total number of sub-files created
-                Console.WriteLine($"Total number of sub-files created: {subFileCount}");
+                }*/
+                                    
             }
+            // Print the total number of sub-files created
+            Console.WriteLine($"Total number of sub-files created: {subFileCount}");
+            if (subFileCount > 0)
+                msgString += subFileCount + " Subfiles have been created and added to the InclinoRS485 successfully." + Environment.NewLine;
+            if (cntSubRepeat > 0)
+                msgString += cntSubRepeat + " Files were already present in the directory, hence ignored";
+
+            Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
         }
+
         //========================================================================================================================
         /*private void tbImport_Click(object sender, EventArgs e)
         {
@@ -1020,10 +1036,23 @@ namespace InclinoRS485
                         DataGridView1.Columns[i].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
                     }
                 }
+                // Configure DataGridView appearance
+                DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
+                DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
+          //---------------------------
                 // Change the background color of the rows
-                DataGridView1.RowsDefaultCellStyle.BackColor = Color.FloralWhite;
-                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGreen;
+                DataGridView1.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
+                //DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
+                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightBlue;
+         //----------------------------
+
+                // Change the background color of the entire DataGridView
+                DataGridView1.BackgroundColor = Color.WhiteSmoke;
+            
+                // Change the background color of selected cells
+                DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Red;
+                DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
 
                 // Enable or disable ToolStrip buttons based on conditions
@@ -1340,7 +1369,7 @@ namespace InclinoRS485
                 return;
             if (lstBoreholes.SelectedItems.Count > 7)
             {
-                Interaction.MsgBox("You have selected " + lstBoreholes.SelectedItems.Count + " files. You can select maximum 5 files for plotting graph", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                Interaction.MsgBox("You have selected " + lstBoreholes.SelectedItems.Count + " files. You can select maximum 7 files for plotting graph", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                 return;
             }
             DataGridView1.Visible = false;
@@ -1485,6 +1514,7 @@ namespace InclinoRS485
 
         private void tbReport_Click(object sender, EventArgs e)
         {
+            ResetLabels();
             DataGridView1.Visible = false;
             CartesianChart1.Visible = false;
             DisplayReport();
