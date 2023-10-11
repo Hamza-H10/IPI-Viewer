@@ -1044,7 +1044,7 @@ namespace InclinoRS485
                 // Change the background color of the rows
                 DataGridView1.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
                 //DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
-                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightBlue;
+                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightSteelBlue;
          //----------------------------
 
                 // Change the background color of the entire DataGridView
