@@ -1199,6 +1199,7 @@ namespace InclinoRS485
                     Values = new ChartValues<ObservablePoint>(),
                     Fill = System.Windows.Media.Brushes.Transparent,
 
+
                     PointGeometry = DefaultGeometries.Diamond, // Change the data value indicator to a circle
                     PointGeometrySize = 10, // Adjust the size of the data value indicator
                     //Stroke = System.Windows.Media.Brushes.Blue, // Change the line color to blue
@@ -1210,45 +1211,36 @@ namespace InclinoRS485
                 //Val = float.Parse(strData[i][3 + _axisValue]);
                 //--------------------------------------------------------------------
                 short i = 0;
-                float Val;
-                float absVal = 0f;
-                float Val2;
-                float absVal2 = 0f;
+                float Val_deg;
+                //float Val_mm;
+                //float absVal = 0f;
+                //float Val2;
+                //float absVal2 = 0f;
 
                 var loopTo = (short)(strData.Length - 1);
 
                 // Populate line series with data points
                 for (i = 0; i <= loopTo; i++)
                 {
-                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;
-                    //Val = float.Parse(strData[i][3 + _axisValue]);
+                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                    //Val = float.Parse(strData[i][3 + _axisValue]);
                     //Console.WriteLine("_axisValue:" + _axisValue);
 
-                    Val = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                    //the Val variable in below line was named as Val then i have changed it to Val_deg
 
-                    Console.WriteLine(Val);
+                    Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                    Console.WriteLine(Val_deg);
 
-                    /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-                    {
-                        Val += absVal;
-                        absVal = Val;
-                    }
-                    else if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-                    {
-                        Val += absVal;
-                        absVal = Val;
-                        Val2 = (float.Parse(strBaseData[i][1 + _axisValue]) - float.Parse(strBaseData[i][2 + _axisValue])) / 2f;
-                        Val2 += absVal2;
-                        absVal2 = Val2;
-                        Val = absVal - absVal2;
-                    }*/
 
-                    /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
-                    {
-                        maxX = Math.Ceiling((double)Math.Abs(Val));
-                    }*/
+                    //float Val_mm = Val_deg * (float)(Math.PI / 180) * 6000;
+                    float Val_mm = Val_deg * (float)(3.14 / 180) * 460;
 
-                    lineSeries.Values.Add(new ObservablePoint((double)Val, (double)-float.Parse(strData[i][2])));
+                    // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
+                    Val_mm = (float)Math.Round(Val_mm, 2);
+
+                    Console.WriteLine(Val_mm);
+                    
+                   
+                    lineSeries.Values.Add(new ObservablePoint((double)Val_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
                 }
 
                 maxX += maxX * 0.2d;

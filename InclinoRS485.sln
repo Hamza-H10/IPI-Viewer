@@ -5,6 +5,8 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InclinoRS485", "InclinoRS485.csproj", "{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "InclinoRS485.setup", "..\InclinoRS485.setup\InclinoRS485.setup.vdproj", "{CE6EC72B-03FF-422B-9861-C3A112713240}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		All|Any CPU = All|Any CPU
@@ -18,6 +20,9 @@ Global
 		{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B842EEC-E737-0641-2F70-4D2EF8F9B95F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE6EC72B-03FF-422B-9861-C3A112713240}.All|Any CPU.ActiveCfg = Debug
+		{CE6EC72B-03FF-422B-9861-C3A112713240}.Debug|Any CPU.ActiveCfg = Debug
+		{CE6EC72B-03FF-422B-9861-C3A112713240}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

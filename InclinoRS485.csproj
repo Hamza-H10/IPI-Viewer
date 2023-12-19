@@ -21,7 +21,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(ProjectDir)**\*.vb</DefaultItemExcludes>
     <LangVersion>latest</LangVersion>
-    <PublishUrl>D:\VisualStudioProject\InclinoRS485 - Copy\InclinoReader\InclinoRS485\Publish\</PublishUrl>
+    <PublishUrl>D:\VisualStudioProject\InclinoRS485\InclinoReader\InclinoRS485\Publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -31,7 +31,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>4</ApplicationRevision>
     <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -72,10 +72,10 @@
     <ApplicationIcon>a41r1-uio14-003.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>F5CDDDED141E8CBAF7DA444BA88623D2EFD65489</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>ABEAE55C77BDACA058F9D100A7066A5891D76302</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>InclinoView_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>InclinoRS485_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -85,6 +85,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -190,7 +193,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="InclinoView_TemporaryKey.pfx" />
+    <None Include="InclinoRS485_TemporaryKey.pfx" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.cs</LastGenOutput>
