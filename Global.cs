@@ -225,7 +225,7 @@ namespace InclinoRS485
         //--------------------------------------------------------------------------------------------------------------------------
         public static string GetBoreholeDirectory(ref short bhnum)
         {
-            Console.WriteLine("Inside GetBoreholeDirectory");
+            //Console.WriteLine("Inside GetBoreholeDirectory");
             return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
             //return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
         }

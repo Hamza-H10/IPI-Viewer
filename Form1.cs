@@ -792,6 +792,7 @@ namespace InclinoRS485
                 // Construct the path to the base file
                 string strFile = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
 
+
                 if (System.IO.File.Exists(strFile))
                 {
                     // Read data from the base file
@@ -1144,7 +1145,7 @@ namespace InclinoRS485
             //tbGraphType.Enabled = true;
 
             /*// Check if the selected graph type is "Deviation"
-            if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+            if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)   //This line of code checks if the text entered in the tbGraphType textbox ("Deviation") exactly matches the string "Deviation", ignoring certain formatting differences
             {
                 // Check if a base file is selected
                 if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
@@ -1166,6 +1167,26 @@ namespace InclinoRS485
                 // Read the base data from the base file
                 strBaseData = GlobalCode.ReadCSVFile(ref strFile);
             }*/
+            //-----------------------------------------------------
+            // Check if a base file is selected
+            if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+            {
+                Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                return;
+            }
+            // Get the path to the base file
+            string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+
+            // Check if the base file exists
+            if (!System.IO.File.Exists(strFileBase))
+            {
+                Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                return;
+            }
+
+            // Read the base data from the base file
+            strBaseData = GlobalCode.ReadCSVFile(ref strFileBase);
+            //---------------------------------------------------------
 
             Console.WriteLine($"SelectedItems Count: {lstBoreholes.SelectedItems.Count}");
 
@@ -1222,25 +1243,58 @@ namespace InclinoRS485
                 // Populate line series with data points
                 for (i = 0; i <= loopTo; i++)
                 {
-                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                    //Val = float.Parse(strData[i][3 + _axisValue]);
+                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
+                    //Val = float.Parse(strData[i][3 + _axisValue]);
                     //Console.WriteLine("_axisValue:" + _axisValue);
+                    //Console.WriteLine(strBaseData);
 
-                    //the Val variable in below line was named as Val then i have changed it to Val_deg
-
-                    Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
-                    Console.WriteLine(Val_deg);
-
-
-                    //float Val_mm = Val_deg * (float)(Math.PI / 180) * 6000;
-                    float Val_mm = Val_deg * (float)(3.14 / 180) * 460;
-
-                    // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
-                    Val_mm = (float)Math.Round(Val_mm, 2);
-
-                    Console.WriteLine(Val_mm);
+                    float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
                     
-                   
-                    lineSeries.Values.Add(new ObservablePoint((double)Val_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
+                    //the Val variable in below line was named as Val then i have changed it to Val_deg
+                    Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                    //Console.WriteLine(Val_deg);
+
+                    float Val_abs = Val_base - Val_deg;
+                    // Round Val_abs to two decimal places
+                    //Val_abs = (float)Math.Round(Val_abs, 2);
+
+                    // Convert Val_deg to Val_mm using the formula
+                    //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
+                    float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
+                    // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
+                    Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
+
+
+                    //Console.WriteLine(Val_abs_mm);
+
+                    /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)                    {
+                       Val += absVal;
+                       absVal = Val;
+                   }
+                   else if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                   {
+                       Val += absVal;
+                       absVal = Val;
+                       Val2 = (float.Parse(strBaseData[i][1 + _axisValue]) - float.Parse(strBaseData[i][2 + _axisValue])) / 2f;
+                       Val2 += absVal2;
+                       absVal2 = Val2;
+                       Val = absVal - absVal2;
+                   }*/
+
+                    /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
+                    {
+                        maxX = Math.Ceiling((double)Math.Abs(Val));
+                    }*/
+
+
+                    //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
+
+                    float yValue = -float.Parse(strData[i][2]);
+
+                    lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
+
+                    // Print values to the console
+                    Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");
                 }
 
                 maxX += maxX * 0.2d;
@@ -1310,8 +1364,20 @@ namespace InclinoRS485
                 cnt = (short)(cnt + 1);
             }
 
-            // Update Label6 based on graph type
-            /*if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
+            //Update Label6 based on graph type
+            //if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
+            //{
+            //    Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
+            //}
+            //else
+            //{
+            //    Label6.Text = "";
+            //}
+
+            //Update Label6 based on graph type
+            //if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
+
+            if (System.IO.File.Exists(strFileBase))
             {
                 Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
             }
@@ -1319,7 +1385,7 @@ namespace InclinoRS485
             {
                 Label6.Text = "";
             }
-*/
+
             Console.WriteLine(seriesCollection);
             // Set the series collection for the chart
             CartesianChart1.Series = seriesCollection;
@@ -1379,7 +1445,8 @@ namespace InclinoRS485
             label7.Text = "";
             label8.Text = "";
 
-            Label6.Text = @"View Graph of one or multiple files.";
+            //Label6.Text = @"View Graph of one or multiple files.";
+            Label6.Text = "";
 
 
             if (bhIndex >= 0)
