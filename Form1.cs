@@ -97,6 +97,7 @@ namespace InclinoRS485
             Label5.ForeColor = System.Drawing.Color.FromArgb(0, 187, 211);
             label7.ForeColor = System.Drawing.Color.FromArgb(255, 20, 147);
             label8.ForeColor = System.Drawing.Color.FromArgb(255, 69, 0);
+            
 
             // Open the application's database
             GlobalCode.OpenDatabase();
@@ -1102,16 +1103,19 @@ namespace InclinoRS485
             // Create X-axis with label formatter, range, and styling
             var XAxis = new Axis()
             {
-                Title = "Displacement (degree)",
+                Title = "Displacement (mm)",
                 LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
-                MaxValue = 80d,
-                MinValue = -80,
+
+                MaxValue = 60d,
+                MinValue = -60d,
                 Separator = new Separator()
                 {
                     IsEnabled = true,
                     Step = 10d,
                     StrokeThickness = 1d
+   
                 },
+
                 Sections = axisSectionSeries // Add axis sections
             };
 
@@ -1222,9 +1226,9 @@ namespace InclinoRS485
 
 
                     PointGeometry = DefaultGeometries.Diamond, // Change the data value indicator to a circle
-                    PointGeometrySize = 10, // Adjust the size of the data value indicator
+                    PointGeometrySize = 9, // Adjust the size of the data value indicator
                     //Stroke = System.Windows.Media.Brushes.Blue, // Change the line color to blue
-                    StrokeThickness = 2 // Adjust the line thickness
+                    StrokeThickness = 1.3 // Adjust the line thickness
 
                 };
                 //--------------------------------------------------------------------
@@ -1543,6 +1547,10 @@ namespace InclinoRS485
                     bsTextPrintData += ", " + Label4.Text;
                 if (!string.IsNullOrEmpty(Label5.Text))
                     bsTextPrintData += ", " + Label5.Text;
+                if (!string.IsNullOrEmpty(label7.Text))
+                    bsTextPrintData += ", " + label7.Text;
+                if (!string.IsNullOrEmpty(label8.Text))
+                    bsTextPrintData += ", " + label8.Text;
                 PrintDocument1.DefaultPageSettings.Margins.Left = 20;
                 PrintDocument1.DefaultPageSettings.Margins.Top = 20;
                 PrintDocument1.DefaultPageSettings.Margins.Right = 15;

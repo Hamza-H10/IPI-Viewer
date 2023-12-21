@@ -8,17 +8,17 @@ using System.Runtime.InteropServices;
 
 // Review the values of the assembly attributes
 
-[assembly: AssemblyTitle("InclinoRS485")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("InclinoRS485")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
-[assembly: AssemblyTrademark("")]
+//[assembly: AssemblyTitle("InclinoRS485")]
+//[assembly: AssemblyDescription("Inclino Tiltmeter Viewer")]
+//[assembly: AssemblyCompany("DataDiggerEquipment")]
+//[assembly: AssemblyProduct("InclinoRS485")]
+//[assembly: AssemblyCopyright("Copyright ©  2023")]
+//[assembly: AssemblyTrademark("DDE")]
 
-[assembly: ComVisible(false)]
+//[assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c8ca4ec4-e950-4997-a0e5-cc86de2f87ac")]
+//[assembly: Guid("c8ca4ec4-e950-4997-a0e5-cc86de2f87ac")]
 
 // Version information for an assembly consists of the following four values:
 // 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // <Assembly: AssemblyVersion("1.0.*")>
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+//[assembly: AssemblyVersion("1.0.0.0")]
+//[assembly: AssemblyFileVersion("1.0.0.0")]
