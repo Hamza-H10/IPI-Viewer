@@ -49,6 +49,8 @@ namespace InclinoRS485
             this.tbViewGraph = new System.Windows.Forms.ToolStripButton();
             this.tbReport = new System.Windows.Forms.ToolStripButton();
             this.tbBaseFile = new System.Windows.Forms.ToolStripButton();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.SplitContainer2 = new System.Windows.Forms.SplitContainer();
             this.DataGridView1 = new System.Windows.Forms.DataGridView();
             this.CartesianChart1 = new LiveCharts.WinForms.CartesianChart();
@@ -71,6 +73,9 @@ namespace InclinoRS485
             this.tbAxisX = new System.Windows.Forms.ToolStripButton();
             this.tbAxisY = new System.Windows.Forms.ToolStripButton();
             this.ToolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
+            this.degToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.PrintDocument1 = new System.Drawing.Printing.PrintDocument();
             this.PrintPreviewDialog1 = new System.Windows.Forms.PrintPreviewDialog();
@@ -102,6 +107,8 @@ namespace InclinoRS485
             // 
             // SplitContainer1.Panel2
             // 
+            this.SplitContainer1.Panel2.Controls.Add(this.button1);
+            this.SplitContainer1.Panel2.Controls.Add(this.button2);
             this.SplitContainer1.Panel2.Controls.Add(this.SplitContainer2);
             this.SplitContainer1.Panel2.Controls.Add(this.ToolStrip2);
             this.SplitContainer1.Size = new System.Drawing.Size(1084, 488);
@@ -116,9 +123,11 @@ namespace InclinoRS485
             this.lstBoreholes.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstBoreholes.ForeColor = System.Drawing.Color.Chartreuse;
             this.lstBoreholes.FormattingEnabled = true;
+            this.lstBoreholes.HorizontalScrollbar = true;
             this.lstBoreholes.ItemHeight = 16;
             this.lstBoreholes.Location = new System.Drawing.Point(0, 54);
             this.lstBoreholes.Name = "lstBoreholes";
+            this.lstBoreholes.ScrollAlwaysVisible = true;
             this.lstBoreholes.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.lstBoreholes.Size = new System.Drawing.Size(356, 434);
             this.lstBoreholes.TabIndex = 1;
@@ -223,6 +232,30 @@ namespace InclinoRS485
             this.tbBaseFile.Text = "Base File";
             this.tbBaseFile.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.tbBaseFile.Click += new System.EventHandler(this.tbBaseFile_Click);
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.MediumAquamarine;
+            this.button1.Location = new System.Drawing.Point(327, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(47, 23);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Deg";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button2
+            // 
+            this.button2.AllowDrop = true;
+            this.button2.AutoEllipsis = true;
+            this.button2.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.button2.Location = new System.Drawing.Point(327, 31);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(47, 23);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "MM";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // SplitContainer2
             // 
@@ -433,7 +466,8 @@ namespace InclinoRS485
             this.toolStripSeparator,
             this.tbAxisX,
             this.tbAxisY,
-            this.ToolStripSeparator3});
+            this.ToolStripSeparator3,
+            this.toolStripSplitButton1});
             this.ToolStrip2.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip2.Name = "ToolStrip2";
             this.ToolStrip2.Size = new System.Drawing.Size(724, 54);
@@ -500,6 +534,30 @@ namespace InclinoRS485
             // 
             this.ToolStripSeparator3.Name = "ToolStripSeparator3";
             this.ToolStripSeparator3.Size = new System.Drawing.Size(6, 54);
+            // 
+            // toolStripSplitButton1
+            // 
+            this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.degToolStripMenuItem,
+            this.mMToolStripMenuItem});
+            this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
+            this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitButton1.Name = "toolStripSplitButton1";
+            this.toolStripSplitButton1.Size = new System.Drawing.Size(79, 51);
+            this.toolStripSplitButton1.Text = "Type";
+            this.toolStripSplitButton1.ButtonClick += new System.EventHandler(this.toolStripSplitButton1_ButtonClick);
+            // 
+            // degToolStripMenuItem
+            // 
+            this.degToolStripMenuItem.Name = "degToolStripMenuItem";
+            this.degToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.degToolStripMenuItem.Text = "Deg";
+            // 
+            // mMToolStripMenuItem
+            // 
+            this.mMToolStripMenuItem.Name = "mMToolStripMenuItem";
+            this.mMToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.mMToolStripMenuItem.Text = "MM";
             // 
             // OpenFileDialog1
             // 
@@ -602,5 +660,10 @@ namespace InclinoRS485
         internal Label label8;
         internal Label label7;
         private System.Data.SQLite.SQLiteCommand sqLiteCommand1;
+        private Button button2;
+        private Button button1;
+        private ToolStripSplitButton toolStripSplitButton1;
+        private ToolStripMenuItem degToolStripMenuItem;
+        private ToolStripMenuItem mMToolStripMenuItem;
     }
 }

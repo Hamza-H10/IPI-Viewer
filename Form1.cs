@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+
 namespace InclinoRS485
 {
     /// <summary>
@@ -85,6 +86,8 @@ namespace InclinoRS485
             CartesianChart1.Visible = false;
             DataGridView1.Visible = false;
             ToolStrip2.Enabled = false;
+            button1.Enabled = false;
+            button2.Enabled = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -98,7 +101,6 @@ namespace InclinoRS485
             label7.ForeColor = System.Drawing.Color.FromArgb(255, 20, 147);
             label8.ForeColor = System.Drawing.Color.FromArgb(255, 69, 0);
             
-
             // Open the application's database
             GlobalCode.OpenDatabase();
             // _DeleteAllBoreholes() ' temporary delete all
@@ -1071,6 +1073,7 @@ namespace InclinoRS485
         //----------------------------------------------------------------------------------------------------------------------
         private void DisplayGraph()
         {
+            button1.Enabled = true; button2.Enabled= true;
             // Initialize variables
             var cnt = default(short); // Counter for labels
             double maxX = 50.0d; // Maximum X value for the chart
@@ -1181,6 +1184,7 @@ namespace InclinoRS485
             // Get the path to the base file
             string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
 
+            //below code was implemented for the deviate
             // Check if the base file exists
             if (!System.IO.File.Exists(strFileBase))
             {
@@ -1586,20 +1590,50 @@ namespace InclinoRS485
             CartesianChart1.Visible = false;
             DisplayReport();
         }
+        //private void tbBaseFile_Click(object sender, EventArgs e)
+        //{
+        //    listBH[bhIndex].BaseFile = Conversions.ToString(lstBoreholes.SelectedItem);
+        //    var tmp = listBH;
+        //    var argbh = tmp[bhIndex];
+        //    GlobalCode.UpdateBorehole(ref argbh);
+        //    tmp[bhIndex] = argbh;
+        //    ReloadList();
+        //}
 
         private void tbBaseFile_Click(object sender, EventArgs e)
         {
-            listBH[bhIndex].BaseFile = Conversions.ToString(lstBoreholes.SelectedItem);
+            // Get the selected item from the list
+            string selectedBaseFile = Conversions.ToString(lstBoreholes.SelectedItem);
+
+            // Create a temporary copy of the list
             var tmp = listBH;
+
+            // Get the Borehole object at the current index
             var argbh = tmp[bhIndex];
-            GlobalCode.UpdateBorehole(ref argbh);
+
+            // Check if the selected item is the same as the current BaseFile
+            if (string.Equals(argbh.BaseFile, selectedBaseFile))
+            {
+                // If it is the same, "deselect" the BaseFile (set it to null or an empty string)
+                argbh.BaseFile = null; // You can also use String.Empty if you prefer
+            }
+            else
+            {
+                // If it is different, update the Borehole object with the new BaseFile value
+                argbh.BaseFile = selectedBaseFile;
+            }
+
+            // Update the Borehole object in the temporary list
             tmp[bhIndex] = argbh;
+
+            // Reload the list with the updated data
             ReloadList();
         }
 
+
+
         private void ListBox1_DrawItem(object sender, DrawItemEventArgs e)
         {
-
             // Draw the background of the ListBox control for each item.
             e.DrawBackground();
             if (e.Index < 0)
@@ -1677,6 +1711,47 @@ namespace InclinoRS485
         private void lstBoreholes_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {           
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+        }
+
+        // Initial state
+        bool isDegrees = true;
+        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
+        {
+            // Toggle the state
+            isDegrees = !isDegrees;
+
+            // Properties - Update the button text,color based on the current state
+            toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
+            toolStripSplitButton1.BackgroundImage = new Bitmap(1, 1);
+            toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
+            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.LightBlue;
+
+            // Handle the behavior based on the current state
+            if (isDegrees)
+            {
+                // Handle the 'deg' state
+                // ...
+                Console.WriteLine("Showing the graph in Degree");
+            }
+            else
+            {
+                // Handle the 'mm' state
+                Console.WriteLine("Showing the graph in mm");
+                // ..
+            }
         }
     }
 }
