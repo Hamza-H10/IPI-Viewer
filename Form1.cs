@@ -432,346 +432,9 @@ namespace InclinoRS485
             }
         }
 
-        //-----------------------------------------------------------------------------------------------------DISPLAY REPORT FOR IMPORTED FILES
-        /*      private void DisplayReport(bool bnLoadText = false)
-                {// the original csv file which is coming from the datalogger is not able to parse and display report and the copied csv file in the excel is parsing without an error. 
-            
-                    // Define variables to store data and calculations
-                    var ds = new DataTable(); // Create a DataTable to hold the report data
-                    var strBaseData = default(string[][]); // Store data from a base file
-                    var bnBaseFilePresent = default(bool); // Flag indicating if a base file is present
+        //-----------------------------------------------------------------------------------------------------DISPLAY REPORT FOR IMPORTED FILES old code here 
 
-                    //var dateTimeColumn = ds.Columns.Add("DateTime", typeof(DateTime));
-                    //dateTimeColumn.ExtendedProperties.Add("Format", "MM/dd/yyyy HH:mm:ss"); // Specify your desired date/time format
-
-                    short i;
-                    float ValA;
-                    float ValB;
-                    DateTime DataTime;
-                    int Sensor;
-                    int Depth;
-                    *//*float ValA;
-                    float ValB;
-                    float absValA = 0f; // Accumulated absolute values of A
-                    float absValB = 0f; // Accumulated absolute values of B
-                    float bsValA;
-                    float bsValB;
-                    float bsAbsValA = 0f; // Accumulated absolute values of A from the base file
-                    float bsAbsValB = 0f; // Accumulated absolute values of B from the base file
-                    float deviationA;
-                    float deviationB;*//*
-
-
-            //-------------------------------------------------------------------------------------------------------------------------------------
-                  //FOR BASE FILE UNCOMMENT THIS WHEN IMPLEMENT FOR BASEfile
-                  // Reset labels and prepare for report generation
-                   *//* if (listBH[bhIndex].BaseFile is null | string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
-                    {
-                        bnBaseFilePresent = false; // No base file is present
-                        Label6.Text = "";
-                    }
-                    else
-                    {
-                        // Construct the path to the base file
-                        string strFile = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
-
-                        if (System.IO.File.Exists(strFile))
-                        {
-                            // Read data from the base file
-                            strBaseData = GlobalCode.ReadCSVFile(ref strFile);
-                            bnBaseFilePresent = true; // Base file is present
-                            Label6.Text = "Base File : " + listBH[bhIndex].BaseFile.Split('.').First().Replace("_", ":");
-                        }
-                        else
-                        {
-                            // Display a message if the base file does not exist
-                            Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                        }
-                    }*//*
-            //-------------------------------------------------------------------------------------------------------------------------------------
-                    Label1.Text = lstBoreholes.SelectedItem.ToString().Split('.').First().Replace("_", ":");
-
-                    // Construct the path to the selected data file
-                    string argFileName = Conversions.ToString(Operators.ConcatenateObject(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\", lstBoreholes.SelectedItem));
-                    Console.WriteLine("argFileName: "+argFileName);
-
-                    string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
-            //-----------------------------------------------------------------------------           
-                    *//*if (strData != null)//this is for checking the strData
-                    {
-                        foreach (string[] row in strData)
-                        {
-                            Console.WriteLine(string.Join(", ", row));
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Failed to read CSV data.");
-                    }*//*
-            //--------------------------------------------------------------------------------
-                    // Create columns in the DataTable to hold the report data
-                    ds.Columns.Add("DateTime", typeof(DateTime)); // Add a DateTime column
-                    ds.Columns.Add("Sensor", typeof(int));
-                    //ds.Columns.Add("Sensor", Type.GetType("System.Single"));
-                    ds.Columns.Add("Depth", Type.GetType("System.Single"));
-                    ds.Columns.Add("A", Type.GetType("System.Single"));
-                    ds.Columns.Add("B", Type.GetType("System.Single"));
-
-                    //_ = ds.Columns["Sensor"].DataType;
-
-                    *//* ds.Columns.Add("Mean A", Type.GetType("System.Single"));
-                     ds.Columns.Add("Mean B", Type.GetType("System.Single"));
-
-                     ds.Columns.Add("Absolute A", Type.GetType("System.Single"));
-                     ds.Columns.Add("Absolute B", Type.GetType("System.Single"));
-
-                     ds.Columns.Add("Deviation A", Type.GetType("System.Single"));
-                     ds.Columns.Add("Deviation B", Type.GetType("System.Single"));*//*
-
-                    // Process data rows
-                    var loopTo = (short)(strData.Length - 1);
-                    Console.WriteLine("size of the file: " + loopTo);
-                    for (i = 0; i <= loopTo; i++)
-                    {
-                        // Calculate values for A and B
-                        *//*ValA = (float.Parse(strData[i][1]) - float.Parse(strData[i][2])) / 2f;
-                        ValB = (float.Parse(strData[i][3]) - float.Parse(strData[i][4])) / 2f;
-                        ValA = (float)Math.Round((double)ValA, 2);
-                        ValB = (float)Math.Round((double)ValB, 2);*/
-
-        /*ValA = (float.Parse(strData[i][3]));
-        ValB = (float.Parse(strData[i][4]));
-        ValA = (float)Math.Round((double)ValA, 2);
-        ValB = (float)Math.Round((double)ValB, 2);*//*
-
-        //Console.WriteLine(ValA + " " + ValB);
-        //-------------------------------------------------------------------------
-        //my change remove this 
-        //ds.Rows.Add(new object[] {float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), ValA, ValB });
-        //ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4])});
-        //-------------------------------------------------------------------------               
-
-        string[] validFormats = { "dd/MM/yyyy HH:mm", "d/M/yyyy HH:mm", "dd-MM-yyyy HH:mm" }; // Add more formats if needed
-
-        CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US"); // Use "en-US" or the appropriate culture for your date format
-
-        if (DateTime.TryParseExact(strData[i][0], validFormats, culture, DateTimeStyles.None, out DateTime dateTimeValue) &&
-            int.TryParse(strData[i][1], out int intValue1) &&
-            int.TryParse(strData[i][2], out int intValue2) &&
-             float.TryParse(strData[i][3], out float floatValue1) &&
-             float.TryParse(strData[i][4], out float floatValue2))
-        {
-            ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
-        }
-        else
-        {
-            // Print the problematic values and index
-            Console.WriteLine($"Error parsing values at row {i + 1}, column {0}:");
-            Console.WriteLine($"strData[i][0]: {strData[i][0]}");
-            Console.WriteLine($"strData[i][1]: {strData[i][1]}");
-            Console.WriteLine($"strData[i][2]: {strData[i][2]}");
-            Console.WriteLine($"strData[i][3]: {strData[i][3]}");
-            Console.WriteLine($"strData[i][4]: {strData[i][4]}");
-
-            // Handle the case where parsing fails, log an error, or take appropriate action.
-        }
-
-        //ValA = float.Parse(strData[i][3].Trim());
-        //ValB = float.Parse(strData[i][4].Trim());
-
-        *//*try
-        {
-            // Attempt to parse the values
-            ds.Rows.Add(new object[] { DateTime.Parse(strData[i][0]), int.Parse(strData[i][1]), int.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]) });
-        }
-        catch (FormatException ex)
-        {
-            // Handle the parsing error and log the details
-            Console.WriteLine($"Error parsing values at index {i}: {ex.Message}");
-            Console.WriteLine($"strData[i][0]: {strData[i][0]}");
-            Console.WriteLine($"strData[i][1]: {strData[i][1]}");
-            Console.WriteLine($"strData[i][2]: {strData[i][2]}");
-            Console.WriteLine($"strData[i][3]: {strData[i][3]}");
-            Console.WriteLine($"strData[i][4]: {strData[i][4]}");
-            // You can choose to skip or handle this row as needed
-        }*/
-
-        /* string[] validFormats = { "dd/MM/yyyy HH:mm", "d/M/yyyy HH:mm", "dd-MM-yyyy HH:mm" }; // Add more formats if needed
-
-         if (strData[i][0].Contains('/') || strData[i][0].Contains('-'))
-         {
-             // This format is like the original file
-             if (DateTime.TryParseExact(strData[i][0], validFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTimeValue) &&
-                 int.TryParse(strData[i][1], out int intValue1) &&
-                 int.TryParse(strData[i][2], out int intValue2) &&
-                 float.TryParse(strData[i][3], out float floatValue1) &&
-                 float.TryParse(strData[i][4], out float floatValue2))
-             {
-                 ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
-             }
-         }
-         else
-         {
-             // This format is like the subfile
-             if (DateTime.TryParseExact(strData[i][0], "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTimeValue) &&
-                 int.TryParse(strData[i][1], out int intValue1) &&
-                 int.TryParse(strData[i][2], out int intValue2) &&
-                 float.TryParse(strData[i][3], out float floatValue1) &&
-                 float.TryParse(strData[i][4], out float floatValue2))
-             {
-                 ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
-             }
-         }*//*
-
-
-        //float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]),
-        // Accumulate absolute values for A and B
-        *//*absValA += ValA;
-        absValB += ValB;
-        absValA = (float)Math.Round((double)absValA, 2);
-        absValB = (float)Math.Round((double)absValB, 2);*/
-
-        /*if (bnBaseFilePresent)
-        {
-            // Calculate values for A and B from the base file
-            bsValA = (float.Parse(strBaseData[i][1]) - float.Parse(strBaseData[i][2])) / 2f;
-            bsValB = (float.Parse(strBaseData[i][3]) - float.Parse(strBaseData[i][4])) / 2f;
-            bsValA = (float)Math.Round((double)bsValA, 2);
-            bsValB = (float)Math.Round((double)bsValB, 2);
-
-            // Accumulate absolute values for A and B from the base file
-            bsAbsValA += bsValA;
-            bsAbsValB += bsValB;
-            bsAbsValA = (float)Math.Round((double)bsAbsValA, 2);
-            bsAbsValB = (float)Math.Round((double)bsAbsValB, 2);
-
-            // Calculate deviations from the base file
-            deviationA = (float)Math.Round((double)(absValA - bsAbsValA), 2);
-            deviationB = (float)Math.Round((double)(absValB - bsAbsValB), 2);
-
-            // Add a row to the DataTable with all calculated values
-             ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB, deviationA, deviationB });
-        }
-        else
-        {
-            // Add a row to the DataTable with calculated values (without deviations)
-            ds.Rows.Add(new object[] { float.Parse(strData[i][0]), float.Parse(strData[i][1]), float.Parse(strData[i][2]), float.Parse(strData[i][3]), float.Parse(strData[i][4]), ValA, ValB, absValA, absValB });
-        }*//*
-    }
-
-    if (bnLoadText)
-        {
-            // Prepare text data for loading (if needed)
-            int row;
-            string strItem;
-
-            var loopTo1 = (short)(ds.Columns.Count - 1);
-            Console.WriteLine(loopTo1);
-            for (i = 0; i <= loopTo1; i++)
-            {
-                if (i > 6)
-                {
-                    bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(12);
-                    Console.WriteLine(bsTextPrintData);
-                }
-                else
-                {  
-                    bsTextPrintData += ds.Columns[i].ColumnName.PadLeft(8);
-                    Console.WriteLine(bsTextPrintData);
-                }
-            }
-            bsTextPrintData += Constants.vbCrLf;
-            bsTextPrintData += "".PadRight(104, '=') + Constants.vbCrLf;
-
-            var loopTo2 = ds.Rows.Count - 1;
-            Console.WriteLine(loopTo2);
-            for (row = 0; row <= loopTo2; row++)
-            {
-                var loopTo3 = (short)(ds.Columns.Count - 1);
-                Console.WriteLine(loopTo3);
-                for (i = 0; i <= loopTo3; i++)
-                {
-                    strItem = "";
-                    if (ds.Rows[row][i] is not DBNull)//DBNull cannot be inherited
-                    {
-                        strItem = Strings.FormatNumber(ds.Rows[row][i], 2);
-                        Console.WriteLine(strItem);
-                    }
-                if (i > 6)
-                    {
-                        bsTextPrintData += "  " + strItem.PadLeft(8) + "  ";
-                        //bsTextPrintData += "  " + FormatDateTime(ds.Rows[row][i]).PadLeft(8) + "  ";
-
-                }
-                else
-                    {
-                        bsTextPrintData += " " + strItem.PadLeft(6) + " ";
-                    //bsTextPrintData += " " + FormatDateTime(ds.Rows[row][i]).PadLeft(6) + " ";
-
-                }
-            }
-                bsTextPrintData += Constants.vbCrLf;
-            //Console.WriteLine(bsTextPrintData);
-            }
-        }
-        else
-        {
-            // Display the report in a DataGridView (if not loading text)
-            DataGridView1.DataSource = ds;
-            DataGridView1.Visible = true;
-
-        //Set column widths
-            var loopTo4 = (short)(DataGridView1.Columns.Count - 1);
-            Console.WriteLine(loopTo4);
-            for (i = 0; i <= loopTo4; i++)
-            {
-            DataGridView1.Columns[i].Width = (i > 6) ? 100 : 100;
-            *//*if (i > 6)
-            {
-                DataGridView1.Columns[i].Width = 100;
-            }
-            else
-            {
-                DataGridView1.Columns[i].Width = 100;
-            }*//*
-
-            DataGridView1.Columns["Sensor"].DefaultCellStyle.Format = "D"; // "D" format for integers
-
-            // Set the DateTime format for the "DateTime" column                
-            if (DataGridView1.Columns[i].Name == "DateTime")
-            {
-                DataGridView1.Columns[i].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
-            }
-        }
-
-            // Configure DataGridView appearance
-            DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
-            DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-            // Change the background color of the entire DataGridView
-            DataGridView1.BackgroundColor = Color.LightGray;
-
-            // Change the background color of the rows
-            DataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
-            DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-
-            // Change the background color of selected cells
-            DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Pink;
-            DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
-
-        // Enable or disable ToolStrip buttons based on conditions
-        if (!ToolStrip2.Enabled)
-            ToolStrip2.Enabled = true;
-
-        //PrintToolStripButton.Enabled = True
-
-        tbAxisX.Enabled = false;
-        tbAxisY.Enabled = false;
-        tbZoom.Enabled = false;
-        tbGraphType.Enabled = false;
-    }
-}*/
-        //---------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------
 
         private void DisplayReport(bool bnLoadText = false) //DISPLAY REPORT FUNCTION FOR THE SUBFILES
         {
@@ -781,7 +444,7 @@ namespace InclinoRS485
 
             short i;
 
-            //-------------------------------------------------------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------
             //FOR BASE FILE UNCOMMENT THIS WHEN IMPLEMENT FOR BASEfile
 
             // Reset labels and prepare for report generation
@@ -810,7 +473,7 @@ namespace InclinoRS485
                 }
             }
 
-            //-------------------------------------------------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------------------------------
             Label1.Text = lstBoreholes.SelectedItem.ToString().Split('.').First().Replace("_", ":");
 
             // Construct the path to the selected data file
@@ -1178,23 +841,26 @@ namespace InclinoRS485
             // Check if a base file is selected
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
-                Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                //Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");                        
                 return;
             }
             // Get the path to the base file
             string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
 
             //below code was implemented for the deviate
-            // Check if the base file exists
+            //Check if the base file exists
             if (!System.IO.File.Exists(strFileBase))
             {
                 Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                 return;
             }
 
-            // Read the base data from the base file
+            // Read the base data from the base file 
             strBaseData = GlobalCode.ReadCSVFile(ref strFileBase);
+
+            // #ToDo: It will not read the data if basefile does not exist, make a logic here to bypass this situation
             //---------------------------------------------------------
+
 
             Console.WriteLine($"SelectedItems Count: {lstBoreholes.SelectedItems.Count}");
 
@@ -1662,6 +1328,7 @@ namespace InclinoRS485
             // the selected item.
             e.DrawFocusRectangle();
             
+            
         }
 
 
@@ -1738,6 +1405,14 @@ namespace InclinoRS485
             toolStripSplitButton1.BackgroundImage = new Bitmap(1, 1);
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
             toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.LightBlue;
+
+            // Check if a base file is selected
+            if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+            {
+                //Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                
+                return;
+            }
 
             // Handle the behavior based on the current state
             if (isDegrees)
