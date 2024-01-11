@@ -100,7 +100,7 @@ namespace InclinoRS485
             Label5.ForeColor = System.Drawing.Color.FromArgb(0, 187, 211);
             label7.ForeColor = System.Drawing.Color.FromArgb(255, 20, 147);
             label8.ForeColor = System.Drawing.Color.FromArgb(255, 69, 0);
-            
+
             // Open the application's database
             GlobalCode.OpenDatabase();
             // _DeleteAllBoreholes() ' temporary delete all
@@ -210,8 +210,8 @@ namespace InclinoRS485
                 Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
             }
         }
-        private void SplitCSVDataIntoSubFiles(string[][] strData, string strDirName) 
-        {           
+        private void SplitCSVDataIntoSubFiles(string[][] strData, string strDirName)
+        {
             Console.WriteLine("INSIDE THE SPLIT CSV IN SUBFILES FUNCTION");
 
             // Prepare a message string to summarize the import process
@@ -284,7 +284,12 @@ namespace InclinoRS485
                 List<string> rows = dateEntry.Value[maxTimePart];
 
                 // Create a sub-file with the date and maximum timePart as the filename
-                string subFileName = $"{date} {maxTimePart}.csv"; // You can change the file extension as needed
+                DateTime subFileDate = DateTime.ParseExact(date, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                //string formattedDateForFilename = subFileDate.ToString("dd-MM-yyyy"); // Format for filename readability
+                string formattedDateForOrdering = subFileDate.ToString("yyyyMMdd"); // Format for serial-wise ordering
+                string formattedDateForFilename = subFileDate.ToString("dd-MM-yyyy"); // Format for filename readability
+                //string subFileName = $"{formattedDateForFilename} {maxTimePart}.csv"; // You can change the file extension as needed
+                string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxTimePart} ].csv";
                 Console.WriteLine("subFileName: " + subFileName);
 
                 if (System.IO.File.Exists(subFileName))
@@ -308,7 +313,7 @@ namespace InclinoRS485
                 {
                     Console.WriteLine(row);
                 }*/
-                                    
+
             }
             // Print the total number of sub-files created
             Console.WriteLine($"Total number of sub-files created: {subFileCount}");
@@ -707,16 +712,16 @@ namespace InclinoRS485
                 DataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 11f, FontStyle.Bold | FontStyle.Italic);
                 DataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-          //---------------------------
+                //---------------------------
                 // Change the background color of the rows
                 DataGridView1.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
                 //DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
                 DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightSteelBlue;
-         //----------------------------
+                //----------------------------
 
                 // Change the background color of the entire DataGridView
                 DataGridView1.BackgroundColor = Color.WhiteSmoke;
-            
+
                 // Change the background color of selected cells
                 DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Red;
                 DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
@@ -736,7 +741,7 @@ namespace InclinoRS485
         //----------------------------------------------------------------------------------------------------------------------
         private void DisplayGraph()
         {
-            button1.Enabled = true; button2.Enabled= true;
+            button1.Enabled = true; button2.Enabled = true;
             // Initialize variables
             var cnt = default(short); // Counter for labels
             double maxX = 50.0d; // Maximum X value for the chart
@@ -779,7 +784,7 @@ namespace InclinoRS485
                     IsEnabled = true,
                     Step = 10d,
                     StrokeThickness = 1d
-   
+
                 },
 
                 Sections = axisSectionSeries // Add axis sections
@@ -917,59 +922,70 @@ namespace InclinoRS485
                 // Populate line series with data points
                 for (i = 0; i <= loopTo; i++)
                 {
-                    //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
-                    //Val = float.Parse(strData[i][3 + _axisValue]);
-                    //Console.WriteLine("_axisValue:" + _axisValue);
-                    //Console.WriteLine(strBaseData);
+                    try
+                    {   if (strData.Length != 8) {
+                            MessageBox.Show($"File {"( " + strFile + " )"}  do not contain required sensors data. Please check file {"( " + strFile + " )"}. Graph may not be formed.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
+                        //Val = float.Parse(strData[i][3 + _axisValue]);
+                        //Console.WriteLine("_axisValue:" + _axisValue);
+                        //Console.WriteLine(strBaseData);
 
-                    float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
-                    
-                    //the Val variable in below line was named as Val then i have changed it to Val_deg
-                    Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
-                    //Console.WriteLine(Val_deg);
+                        float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
 
-                    float Val_abs = Val_base - Val_deg;
-                    // Round Val_abs to two decimal places
-                    //Val_abs = (float)Math.Round(Val_abs, 2);
+                        //the Val variable in below line was named as Val then i have changed it to Val_deg
+                        Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                        //Console.WriteLine(Val_deg);
 
-                    // Convert Val_deg to Val_mm using the formula
-                    //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
-                    float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
-                    // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
-                    Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
+                        float Val_abs = Val_base - Val_deg;
+                        // Round Val_abs to two decimal places
+                        //Val_abs = (float)Math.Round(Val_abs, 2);
 
+                        // Convert Val_deg to Val_mm using the formula
+                        //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
+                        float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
+                        // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
+                        Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
 
-                    //Console.WriteLine(Val_abs_mm);
+                        //Console.WriteLine(Val_abs_mm);
 
-                    /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)                    {
-                       Val += absVal;
-                       absVal = Val;
-                   }
-                   else if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-                   {
-                       Val += absVal;
-                       absVal = Val;
-                       Val2 = (float.Parse(strBaseData[i][1 + _axisValue]) - float.Parse(strBaseData[i][2 + _axisValue])) / 2f;
-                       Val2 += absVal2;
-                       absVal2 = Val2;
-                       Val = absVal - absVal2;
-                   }*/
+                        /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)                    {
+                            Val += absVal;
+                            absVal = Val;
+                        }
+                        else if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                        {
+                            Val += absVal;
+                            absVal = Val;
+                            Val2 = (float.Parse(strBaseData[i][1 + _axisValue]) - float.Parse(strBaseData[i][2 + _axisValue])) / 2f;
+                            Val2 += absVal2;
+                            absVal2 = Val2;
+                            Val = absVal - absVal2;
+                        }*/
 
-                    /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
+                        /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
+                        {
+                            maxX = Math.Ceiling((double)Math.Abs(Val));
+                        }*/
+
+                        //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
+
+                        float yValue = -float.Parse(strData[i][2]);
+
+                        lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
+
+                        // Print values to the console
+                        Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");                        
+                    }
+                    catch (IndexOutOfRangeException ex)
                     {
-                        maxX = Math.Ceiling((double)Math.Abs(Val));
-                    }*/
-
-
-                    //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
-
-                    float yValue = -float.Parse(strData[i][2]);
-
-                    lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
-
-                    // Print values to the console
-                    Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");
+                        // Handle the exception
+                        //Console.WriteLine($"An error occurred: {ex.Message}");
+                        MessageBox.Show($"Error: Index was outside the bounds of the array for file {"(" + strFile + ")"} . Please check if file {"(" + strFile + ")"}  contains the all the sensors data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        //MessageBox.Show($"If data discrepancies occur, kindly contact the support to report.", "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
+                
 
                 maxX += maxX * 0.2d;
                 maxX = Math.Ceiling(maxX);
@@ -1037,6 +1053,8 @@ namespace InclinoRS485
                 }
                 cnt = (short)(cnt + 1);
             }
+ //-----------------------------------------------       
+     //there is something changed here please refer to that file     
 
             //Update Label6 based on graph type
             //if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(tbGraphType.SelectedItem, "Deviation", true)))
