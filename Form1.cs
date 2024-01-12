@@ -86,8 +86,8 @@ namespace InclinoRS485
             CartesianChart1.Visible = false;
             DataGridView1.Visible = false;
             ToolStrip2.Enabled = false;
-            button1.Enabled = false;
-            button2.Enabled = false;
+            
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -278,10 +278,21 @@ namespace InclinoRS485
                 Console.WriteLine("date: " + date);
 
                 // Find the maximum timePart for this date
-                string maxTimePart = dateEntry.Value.Keys.Max();
+                //string maxTimePart = dateEntry.Value.Keys.Max();
+
+                // Find the maximum hourPart for this date
+                string maxHourPart = dateEntry.Value.Keys.Max(hourPart => hourPart.Substring(0, 2));
 
                 // Select the rows for the maximum timePart
-                List<string> rows = dateEntry.Value[maxTimePart];
+                //List<string> rows = dateEntry.Value[maxTimePart];
+
+                // Select the rows for the maximum hourPart
+                var filteredKeys = dateEntry.Value.Keys.Where(key => key.StartsWith(maxHourPart));
+                List<string> rows = new List<string>();
+                foreach (var key in filteredKeys)
+                {
+                    rows.AddRange(dateEntry.Value[key]);
+                }
 
                 // Create a sub-file with the date and maximum timePart as the filename
                 DateTime subFileDate = DateTime.ParseExact(date, "dd-MM-yyyy", CultureInfo.InvariantCulture);
@@ -289,9 +300,8 @@ namespace InclinoRS485
                 string formattedDateForOrdering = subFileDate.ToString("yyyyMMdd"); // Format for serial-wise ordering
                 string formattedDateForFilename = subFileDate.ToString("dd-MM-yyyy"); // Format for filename readability
                 //string subFileName = $"{formattedDateForFilename} {maxTimePart}.csv"; // You can change the file extension as needed
-                string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxTimePart} ].csv";
-                Console.WriteLine("subFileName: " + subFileName);
-
+                string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxHourPart} ].csv";
+                
                 if (System.IO.File.Exists(subFileName))
                 {
                     cntSubRepeat = (short)(cntSubRepeat + 1);
@@ -299,7 +309,6 @@ namespace InclinoRS485
 
                 // Construct the destination path for the sub-file in the borehole directory
                 string destinationPath = Path.Combine(baseDirectory, subFileName);
-                Console.WriteLine("Destination Path: " + destinationPath);
 
                 // Save the sub-file to the borehole directory
                 File.WriteAllLines(destinationPath, rows);
@@ -313,7 +322,6 @@ namespace InclinoRS485
                 {
                     Console.WriteLine(row);
                 }*/
-
             }
             // Print the total number of sub-files created
             Console.WriteLine($"Total number of sub-files created: {subFileCount}");
@@ -741,7 +749,7 @@ namespace InclinoRS485
         //----------------------------------------------------------------------------------------------------------------------
         private void DisplayGraph()
         {
-            button1.Enabled = true; button2.Enabled = true;
+            
             // Initialize variables
             var cnt = default(short); // Counter for labels
             double maxX = 50.0d; // Maximum X value for the chart
@@ -846,9 +854,12 @@ namespace InclinoRS485
             // Check if a base file is selected
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
-                //Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");                        
-                return;
+                //if () 
+                //{ Interaction.MsgBox("Base is not selected. Please view graph in MM", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                //}
+                //return;
             }
+
             // Get the path to the base file
             string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
 
@@ -856,7 +867,7 @@ namespace InclinoRS485
             //Check if the base file exists
             if (!System.IO.File.Exists(strFileBase))
             {
-                Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                //Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                 return;
             }
 
@@ -1288,13 +1299,10 @@ namespace InclinoRS485
         {
             // Get the selected item from the list
             string selectedBaseFile = Conversions.ToString(lstBoreholes.SelectedItem);
-
             // Create a temporary copy of the list
-            var tmp = listBH;
-
+            var tmp = listBH;// copy of the basic details of the file i.e BaseFile, Depth, Id, Location, SiteName
             // Get the Borehole object at the current index
             var argbh = tmp[bhIndex];
-
             // Check if the selected item is the same as the current BaseFile
             if (string.Equals(argbh.BaseFile, selectedBaseFile))
             {
@@ -1306,15 +1314,13 @@ namespace InclinoRS485
                 // If it is different, update the Borehole object with the new BaseFile value
                 argbh.BaseFile = selectedBaseFile;
             }
-
+            // Call the UpdateBorehole method to update the borehole information
+            GlobalCode.UpdateBorehole(ref argbh);
             // Update the Borehole object in the temporary list
             tmp[bhIndex] = argbh;
-
             // Reload the list with the updated data
             ReloadList();
         }
-
-
 
         private void ListBox1_DrawItem(object sender, DrawItemEventArgs e)
         {
@@ -1330,11 +1336,11 @@ namespace InclinoRS485
             {
                 if (CultureInfo.CurrentCulture.CompareInfo.Compare(listBH[bhIndex].BaseFile ?? "", lstBoreholes.Items[e.Index].ToString() ?? "", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                 {
-                    myBrush = System.Drawing.Brushes.OrangeRed;
+                    myBrush = System.Drawing.Brushes.Red;
                 }
                 else
                 {
-                    myBrush = System.Drawing.Brushes.Cyan;
+                    myBrush = System.Drawing.Brushes.LightYellow;
                 }
             }
 
@@ -1403,14 +1409,6 @@ namespace InclinoRS485
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {           
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-        }
-
         // Initial state
         bool isDegrees = true;
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
@@ -1422,13 +1420,13 @@ namespace InclinoRS485
             toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
             toolStripSplitButton1.BackgroundImage = new Bitmap(1, 1);
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
-            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.LightBlue;
+            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan;//previously LightBlue
 
             // Check if a base file is selected
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
                 //Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                
+                DisplayGraph();
                 return;
             }
 
@@ -1436,11 +1434,12 @@ namespace InclinoRS485
             if (isDegrees)
             {
                 // Handle the 'deg' state
-                // ...
+                MessageBox.Show($"showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Console.WriteLine("Showing the graph in Degree");
             }
             else
             {
+                MessageBox.Show($"  showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Handle the 'mm' state
                 Console.WriteLine("Showing the graph in mm");
                 // ..

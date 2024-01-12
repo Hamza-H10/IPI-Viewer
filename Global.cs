@@ -103,26 +103,21 @@ namespace InclinoRS485
         {
             short result;
             bool bnAddBaseFile = true;
-            if (bh.BaseFile.Length < 2)
+            if (bh.BaseFile == null || bh.BaseFile.Length < 2)
                 bnAddBaseFile = false;
 
             if (bnAddBaseFile)
             {
                 sqlite_cmd.CommandText = @" UPDATE Boreholes SET [SITENAME]=@SiteName, [LOCATION]=@Location,  [DEPTH]=@Depth, [BASEFILE]=@BaseFile 
-                
-              WHERE [Id]=@ID";
-                //[DateTime]=@DateTime, [sensor]=@sensor,
+      WHERE [Id]=@ID";
             }
             else
             {
-                sqlite_cmd.CommandText = " UPDATE Boreholes SET [SITENAME]=@SiteName, [LOCATION]=@Location,  [DEPTH]=@Depth WHERE [Id]=@ID";
-                //[DateTime]=@DateTime, [sensor]=@sensor,
+                sqlite_cmd.CommandText = " UPDATE Boreholes SET [SITENAME]=@SiteName, [LOCATION]=@Location,  [DEPTH]=@Depth, [BASEFILE]=null WHERE [Id]=@ID";
             }
             sqlite_cmd.Parameters.AddWithValue("@ID", bh.Id);
             sqlite_cmd.Parameters.AddWithValue("@SiteName", bh.SiteName);
             sqlite_cmd.Parameters.AddWithValue("@Location", bh.Location);
-            //sqlite_cmd.Parameters.AddWithValue("@DateTime", bh.DateTime);
-            //sqlite_cmd.Parameters.AddWithValue("@sensor", bh.sensor);
             sqlite_cmd.Parameters.AddWithValue("@Depth", bh.Depth);
             if (bnAddBaseFile)
             {
@@ -138,6 +133,7 @@ namespace InclinoRS485
             }
             return true;
         }
+
 
         public static short DeleteBorehole(ref short id)// check this function 
         {
@@ -162,7 +158,7 @@ namespace InclinoRS485
             while (sqlite_datareader.Read())
 
 
-                bh.Add(new BoreHole() { Id = Conversions.ToShort(sqlite_datareader.GetValue(0)), SiteName = Conversions.ToString(sqlite_datareader.GetValue(1)), Location = Conversions.ToString(sqlite_datareader.GetValue(2)), Depth = Conversions.ToSingle(sqlite_datareader.GetValue(3)), BaseFile = Conversions.ToString(Operators.ConcatenateObject("", sqlite_datareader.GetValue(4))) });
+            bh.Add(new BoreHole() { Id = Conversions.ToShort(sqlite_datareader.GetValue(0)), SiteName = Conversions.ToString(sqlite_datareader.GetValue(1)), Location = Conversions.ToString(sqlite_datareader.GetValue(2)), Depth = Conversions.ToSingle(sqlite_datareader.GetValue(3)), BaseFile = Conversions.ToString(Operators.ConcatenateObject("", sqlite_datareader.GetValue(4))) });
             //DateTime = Conversions.ToString(sqlite_datareader.GetValue(3)), sensor = Conversions.ToInteger(sqlite_datareader.GetValue(4)), 
             sqlite_datareader.Close();
             return bh;

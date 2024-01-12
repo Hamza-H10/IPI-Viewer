@@ -49,8 +49,6 @@ namespace InclinoRS485
             this.tbViewGraph = new System.Windows.Forms.ToolStripButton();
             this.tbReport = new System.Windows.Forms.ToolStripButton();
             this.tbBaseFile = new System.Windows.Forms.ToolStripButton();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.SplitContainer2 = new System.Windows.Forms.SplitContainer();
             this.DataGridView1 = new System.Windows.Forms.DataGridView();
             this.CartesianChart1 = new LiveCharts.WinForms.CartesianChart();
@@ -107,8 +105,6 @@ namespace InclinoRS485
             // 
             // SplitContainer1.Panel2
             // 
-            this.SplitContainer1.Panel2.Controls.Add(this.button1);
-            this.SplitContainer1.Panel2.Controls.Add(this.button2);
             this.SplitContainer1.Panel2.Controls.Add(this.SplitContainer2);
             this.SplitContainer1.Panel2.Controls.Add(this.ToolStrip2);
             this.SplitContainer1.Size = new System.Drawing.Size(1084, 488);
@@ -232,30 +228,6 @@ namespace InclinoRS485
             this.tbBaseFile.Text = "Base File";
             this.tbBaseFile.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.tbBaseFile.Click += new System.EventHandler(this.tbBaseFile_Click);
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.MediumAquamarine;
-            this.button1.Location = new System.Drawing.Point(327, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(47, 23);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Deg";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.AllowDrop = true;
-            this.button2.AutoEllipsis = true;
-            this.button2.BackColor = System.Drawing.Color.DeepSkyBlue;
-            this.button2.Location = new System.Drawing.Point(327, 31);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(47, 23);
-            this.button2.TabIndex = 5;
-            this.button2.Text = "MM";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // SplitContainer2
             // 
@@ -550,13 +522,13 @@ namespace InclinoRS485
             // degToolStripMenuItem
             // 
             this.degToolStripMenuItem.Name = "degToolStripMenuItem";
-            this.degToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.degToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
             this.degToolStripMenuItem.Text = "Deg";
             // 
             // mMToolStripMenuItem
             // 
             this.mMToolStripMenuItem.Name = "mMToolStripMenuItem";
-            this.mMToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.mMToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
             this.mMToolStripMenuItem.Text = "MM";
             // 
             // OpenFileDialog1
@@ -660,8 +632,6 @@ namespace InclinoRS485
         internal Label label8;
         internal Label label7;
         private System.Data.SQLite.SQLiteCommand sqLiteCommand1;
-        private Button button2;
-        private Button button1;
         private ToolStripSplitButton toolStripSplitButton1;
         private ToolStripMenuItem degToolStripMenuItem;
         private ToolStripMenuItem mMToolStripMenuItem;
