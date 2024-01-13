@@ -87,8 +87,8 @@ namespace InclinoRS485
             CartesianChart1.Visible = false;
             DataGridView1.Visible = false;
             ToolStrip2.Enabled = false;
-            
-            
+            //toolStripSplitButton1.Enabled = false;
+           
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -618,6 +618,8 @@ namespace InclinoRS485
             double maxX = 50.0d; // Maximum X value for the chart
             var strBaseData = default(string[][]); // Array to store base data
 
+            //ResetToolStripSplitButton1(); //this will reset the state of this button
+
             // Create an empty collection for chart axis sections
             var axisSectionSeries = new SectionsCollection
             {
@@ -696,8 +698,25 @@ namespace InclinoRS485
                 //if () 
                 //{ Interaction.MsgBox("Base is not selected. Please view graph in MM", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                 //}
-                //return;
+                return;
             }
+
+//-------------------------------------------//check here the baseFile path here 
+            //string dirPath = "";
+            //string baseFile = "";
+            //string strFileBase = "";
+
+            //try
+            //{
+            //    dirPath = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected);
+            //    baseFile = listBH[bhIndex].BaseFile;
+            //    strFileBase = Path.Combine(dirPath, baseFile);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("An error occurred: {0}", ex.Message);
+            //}
+//----------------------------------------------
 
             // Get the path to the base file
             string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
@@ -711,7 +730,7 @@ namespace InclinoRS485
             }
 
             // Read the base data from the base file 
-            strBaseData = GlobalCode.ReadCSVFile(ref strFileBase);
+            strBaseData = GlobalCode.ReadCSVFile(ref strFileBase); //error - happening on this line
 
             // #ToDo: It will not read the data if basefile does not exist, make a logic here to bypass this situation
             //---------------------------------------------------------
@@ -890,7 +909,14 @@ namespace InclinoRS485
             {
                 tbAxisY.Checked = false;
                 _axisValue = 0;
-                DisplayGraph();
+                if (isDegrees) // Check if 'isDegrees' is true
+                {
+                    DisplayGraph(true); // If 'isDegrees' is true, call DisplayGraph with true
+                }
+                else
+                {
+                    DisplayGraph(); // If 'isDegrees' is false, call DisplayGraph with no parameters
+                }
             }
             else
             {
@@ -904,7 +930,14 @@ namespace InclinoRS485
             {
                 tbAxisX.Checked = false;
                 _axisValue = 1;
-                DisplayGraph();
+                if (isDegrees) // Check if 'isDegrees' is true
+                {
+                    DisplayGraph(true); // If 'isDegrees' is true, call DisplayGraph with true
+                }
+                else
+                {
+                    DisplayGraph(); // If 'isDegrees' is false, call DisplayGraph with no parameters
+                }
             }
             else
             {
@@ -1090,14 +1123,23 @@ namespace InclinoRS485
             // Get the selected item from the list
             string selectedBaseFile = Conversions.ToString(lstBoreholes.SelectedItem);
             // Create a temporary copy of the list
-            var tmp = listBH;// copy of the basic details of the file i.e BaseFile, Depth, Id, Location, SiteName
+            var tmp = listBH;
             // Get the Borehole object at the current index
             var argbh = tmp[bhIndex];
             // Check if the selected item is the same as the current BaseFile
             if (string.Equals(argbh.BaseFile, selectedBaseFile))
             {
                 // If it is the same, "deselect" the BaseFile (set it to null or an empty string)
-                argbh.BaseFile = null; // You can also use String.Empty if you prefer
+                if (argbh.BaseFile != null) // Check if the BaseFile was previously present
+                {
+                    // Ask the user if they really want to remove the BaseFile
+                    DialogResult dialogResult = MessageBox.Show("Are you sure you want to remove the BaseFile?", "Confirm", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        argbh.BaseFile = null; // You can also use String.Empty if you prefer
+                        MessageBox.Show("The BaseFile has been removed.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information); // Notify the user
+                    }
+                }
             }
             else
             {
@@ -1111,6 +1153,8 @@ namespace InclinoRS485
             // Reload the list with the updated data
             ReloadList();
         }
+
+
 
         private void ListBox1_DrawItem(object sender, DrawItemEventArgs e)
         {
@@ -1216,24 +1260,46 @@ namespace InclinoRS485
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
                 //Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                DisplayGraph(); //display graph in mm 
-                return;
+                //DisplayGraph(); //display graph in mm 
+                //return;
             }
 
             // Handle the behavior based on the current state
             if (isDegrees)
             {
-                // Handle the 'deg' state
-                MessageBox.Show($"showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                DisplayGraph(true);
+                // Get the path to the base file
+                string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+                if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+                {
+                    Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                    //return; //uncomment this return statment.
+                }
+                else
+                {// Handle the 'deg' state
+                    MessageBox.Show($"Showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DisplayGraph(true);
+                }
             }
             else
             {
-                MessageBox.Show($"showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Handle the 'mm' state
                 DisplayGraph();
                 
             }
+        }
+        private void ResetToolStripSplitButton1()
+        {
+            // Reset the state
+            isDegrees = false; // or true, depending on what you consider the initial state
+
+            // Reset properties - Update the button text, color based on the reset state
+            toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
+            toolStripSplitButton1.BackgroundImage = null; // or set to initial image
+            toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
+            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan; // or set to initial color
+
+            // Reset other properties and states as needed...
         }
     }
 }
