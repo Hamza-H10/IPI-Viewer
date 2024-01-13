@@ -15,6 +15,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 
+
 namespace InclinoRS485
 {
     /// <summary>
@@ -333,90 +334,6 @@ namespace InclinoRS485
             Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
         }
 
-        //========================================================================================================================
-        /*private void tbImport_Click(object sender, EventArgs e)
-        {
-            short cnt = 0;
-            short cntError = 0;
-            short cntRepeat = 0;
-
-            string msgString = "Import Summary:" + Environment.NewLine; //Environment.NewLine = "\r\n"
-            Console.WriteLine(msgString);
-
-
-            if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-
-                foreach (string strFileName in OpenFileDialog1.FileNames)
-                {
-                    Console.WriteLine(strFileName);
-
-                    string tempFileName = strFileName; // Create a temporary variable
-                    Console.WriteLine("tempFileName: " + tempFileName);
-
-                    string strFileNew = strFileName.Split('\\').Last();//opening a string file dialogue here when selected the already imported file
-                    Console.WriteLine("strFileNew: " + strFileNew);
-
-                    if (CultureInfo.CurrentCulture.CompareInfo.Compare(strFileNew.Split('.').Last().ToLower(), "csv", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-                    {
-                        string[][] strData = GlobalCode.ReadCSVFile(ref tempFileName);
-
-                        Console.WriteLine(strData.Length);
-
-                        if (strData.Length < 5)
-                        {
-                            cntError = (short)(cntError + 1);
-                        }
-                        else
-                        {
-                            // Catch 4 parameters for the new borehole
-                            short borehole_num;
-                            float depth;
-                            string strDirName;
-
-                            borehole_num = short.Parse(strData[0][1]);
-                            strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);//debugger is skipping this line// exception is being thrown here please check
-                            strFileNew = strDirName + @"\" + strFileNew;
-                            Console.WriteLine("strFileNew: " + strFileName);
-
-                            if (System.IO.File.Exists(strFileNew))
-                            {
-                                cntRepeat = (short)(cntRepeat + 1);
-                            }
-                            else
-                            {
-                                if (!System.IO.Directory.Exists(strDirName))
-                                {
-                                    System.IO.Directory.CreateDirectory(strDirName);
-                                }
-                                FileSystem.FileCopy(strFileName, strFileNew);
-                                Console.WriteLine(strData[1][0]);
-                                // depth = float.Parse(strData[4][0]);
-                                Console.WriteLine("strData[10][2]: " + strData[10][2]);
-                                depth = float.Parse(strData[10][2]);//check here if the value comes or not
-
-                                var bh = new GlobalCode.BoreHole() { Id = borehole_num, SiteName = strData[1][1], Location = strData[2][1], Depth = depth, BaseFile = "" };
-                                if (!GlobalCode.AddBorehole(ref bh))
-                                {
-                                    GlobalCode.UpdateBorehole(ref bh);
-                                }
-                                ReloadList();
-                                cnt = (short)(cnt + 1);
-                            }
-                        }
-                    }
-                }
-                if (cnt > 0)
-                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoRS485 successfully." + Constants.vbCrLf;
-                if (cntError > 0)
-                    msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
-                if (cntRepeat > 0)
-                    msgString += cntRepeat + " file(s) were already imported into the application, hence ignored." + Constants.vbCrLf;
-
-                Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
-            }
-        }*/
-        //------------------------------------------------------------------------------------------------------------------------------------
         private void tbBack_Click(object sender, EventArgs e)
         {
             if (boreHoleSelected > 0)
@@ -492,59 +409,6 @@ namespace InclinoRS485
             // Construct the path to the selected data file
             string argFileName = Conversions.ToString(Operators.ConcatenateObject(GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\", lstBoreholes.SelectedItem));
             Console.WriteLine("argFileName: " + argFileName);
-
-            /*          string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
-                        // Create columns in the DataTable to hold the report data
-                        ds.Columns.Add("DateTime", typeof(DateTime)); // Add a DateTime column
-                        ds.Columns.Add("Sensor", typeof(int));
-                        //ds.Columns.Add("Sensor", Type.GetType("System.Single"));
-                        ds.Columns.Add("Depth", Type.GetType("System.Single"));//no variable values are showing here and below  
-                        ds.Columns.Add("A", Type.GetType("System.Single"));
-                        ds.Columns.Add("B", Type.GetType("System.Single"));
-
-                        // Process data rows
-                        var loopTo = (short)(strData.Length - 1);
-                        Console.WriteLine("size of the file: " + loopTo);
-                        for (i = 4; i <= loopTo; i++)
-                        {
-                            if (strData[i].Length < 5)
-                            {
-                                Console.WriteLine($"Error at row {i + 1}: Insufficient data columns");
-                                continue; // Skip this row and continue with the next
-                            }
-                            //-------------------------------------------------------------------------------------------------------------------------------------
-                            string[] validFormats = { "dd/MM/yyyy HH:mm", "d/M/yyyy HH:mm", "dd-MM-yyyy HH:mm", "dd/MM/yyyy H:m", "d/M/yyyy H:m", "dd/MM/yyyy H:mm", "d/M/yyyy H:mm", "dd/MM/yyyy HH:mm:ss.fff", "dd/MM/yyyy HH:mm:ss UTC", "dd/MM/yyyy HH:mm:ss Z", "dd/MM/yyyy HH:mm:ss zzz", "" };
-
-                            CultureInfo culture = CultureInfo.CreateSpecificCulture("de-DE");
-
-                            for (i = 4; i <= loopTo; i++)
-                            {
-                                if (strData[i].Length < 5)
-                                {
-                                    Console.WriteLine($"Error at row {i + 1}: Insufficient data columns");
-                                    continue;
-                                }
-
-                                if (DateTime.TryParseExact(strData[i][0], validFormats, culture, DateTimeStyles.None, out DateTime dateTimeValue) &&
-                                    int.TryParse(strData[i][1], out int intValue1) &&
-                                    int.TryParse(strData[i][2], out int intValue2) &&
-                                    float.TryParse(strData[i][3], out float floatValue1) &&
-                                    float.TryParse(strData[i][4], out float floatValue2))
-                                {
-                                    ds.Rows.Add(new object[] { dateTimeValue, intValue1, intValue2, floatValue1, floatValue2 });
-                                }
-                                else
-                                {
-                                    // Print the problematic values and index
-                                    Console.WriteLine($"Error parsing values at row {i + 1}, column {0}:");
-                                    Console.WriteLine($"strData[i][0]: {strData[i][0]}");
-                                    Console.WriteLine($"strData[i][1]: {strData[i][1]}");
-                                    Console.WriteLine($"strData[i][2]: {strData[i][2]}");
-                                    Console.WriteLine($"strData[i][3]: {strData[i][3]}");
-                                    Console.WriteLine($"strData[i][4]: {strData[i][4]}");
-                                }
-                            }
-                        }*/
 
             // Read the CSV file
             string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
@@ -747,9 +611,8 @@ namespace InclinoRS485
             }
         }
         //----------------------------------------------------------------------------------------------------------------------
-        private void DisplayGraph()
+        private void DisplayGraph(bool isDegree = false)
         {
-            
             // Initialize variables
             var cnt = default(short); // Counter for labels
             double maxX = 50.0d; // Maximum X value for the chart
@@ -778,7 +641,6 @@ namespace InclinoRS485
                     StrokeThickness = 1d
                 }
             };
-
             // Create X-axis with label formatter, range, and styling
             var XAxis = new Axis()
             {
@@ -792,7 +654,6 @@ namespace InclinoRS485
                     IsEnabled = true,
                     Step = 10d,
                     StrokeThickness = 1d
-
                 },
 
                 Sections = axisSectionSeries // Add axis sections
@@ -825,32 +686,10 @@ namespace InclinoRS485
             tbAxisX.Enabled = true;
             tbAxisY.Enabled = true;
             tbZoom.Enabled = true;
-            //tbGraphType.Enabled = true;
+            
 
-            /*// Check if the selected graph type is "Deviation"
-            if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)   //This line of code checks if the text entered in the tbGraphType textbox ("Deviation") exactly matches the string "Deviation", ignoring certain formatting differences
-            {
-                // Check if a base file is selected
-                if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
-                {
-                    Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                    return;
-                }
-
-                // Get the path to the base file
-                string strFile = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
-
-                // Check if the base file exists
-                if (!System.IO.File.Exists(strFile))
-                {
-                    Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                    return;
-                }
-
-                // Read the base data from the base file
-                strBaseData = GlobalCode.ReadCSVFile(ref strFile);
-            }*/
             //-----------------------------------------------------
+             
             // Check if a base file is selected
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
@@ -865,10 +704,10 @@ namespace InclinoRS485
 
             //below code was implemented for the deviate
             //Check if the base file exists
-            if (!System.IO.File.Exists(strFileBase))
+            if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
             {
                 //Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                return;
+                //return; //uncomment this return statment.
             }
 
             // Read the base data from the base file 
@@ -876,12 +715,10 @@ namespace InclinoRS485
 
             // #ToDo: It will not read the data if basefile does not exist, make a logic here to bypass this situation
             //---------------------------------------------------------
-
-
             Console.WriteLine($"SelectedItems Count: {lstBoreholes.SelectedItems.Count}");
 
             // Loop through selected items
-            foreach (string lstItem in lstBoreholes.SelectedItems)//PROBLEM HERE: NOT ENTERING THE LOOP WHEN DEBUGGER IS RUNNING. BUT IF THE FOREACH LOOP IN NOT EXECUTING THEN WHY THE GRAPH GAVE RESPONSE WHEN CHANGED IN THE LAST LINE.
+            foreach (string lstItem in lstBoreholes.SelectedItems)
             {
                 Console.WriteLine("Inside foreach loop");
                 // Get the path to the current file
@@ -889,19 +726,6 @@ namespace InclinoRS485
                 string[][] strData = GlobalCode.ReadCSVFile(ref argFileName);
                 string strFile = lstItem.Split('.').First().Replace("_", ":");
 
-                /*// Check if the graph type is "Deviation" and data lengths match
-                if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
-                {
-                    if (strData.Length != strBaseData.Length)
-                    {
-                        Interaction.MsgBox("Scale or length mismatch between Base file and Selected file.", Constants.vbExclamation | Constants.vbOKOnly, "Graph");
-                        return;
-                    }
-                }*/
-
-                /*//old comments
-                // Dim invertedYMapper
-                // = LiveCharts.Configurations.Mappers.Xy(Of ObservablePoint)().X(Function(point) point.Y).Y(Function(point) -point.X)*/
 
                 // Create a new line series for the chart
                 var lineSeries = new VerticalLineSeries()
@@ -910,12 +734,10 @@ namespace InclinoRS485
                     Values = new ChartValues<ObservablePoint>(),
                     Fill = System.Windows.Media.Brushes.Transparent,
 
-
                     PointGeometry = DefaultGeometries.Diamond, // Change the data value indicator to a circle
                     PointGeometrySize = 9, // Adjust the size of the data value indicator
                     //Stroke = System.Windows.Media.Brushes.Blue, // Change the line color to blue
                     StrokeThickness = 1.3 // Adjust the line thickness
-
                 };
                 //--------------------------------------------------------------------
                 //float Val;
@@ -923,75 +745,56 @@ namespace InclinoRS485
                 //--------------------------------------------------------------------
                 short i = 0;
                 float Val_deg;
-                //float Val_mm;
-                //float absVal = 0f;
-                //float Val2;
-                //float absVal2 = 0f;
-
+               
                 var loopTo = (short)(strData.Length - 1);
 
                 // Populate line series with data points
                 for (i = 0; i <= loopTo; i++)
                 {
                     try
-                    {   if (strData.Length != 8) {
+                    {
+                        if (strData.Length != 8)
+                        {
                             MessageBox.Show($"File {"( " + strFile + " )"}  do not contain required sensors data. Please check file {"( " + strFile + " )"}. Graph may not be formed.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-                        //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
-                        //Val = float.Parse(strData[i][3 + _axisValue]);
-                        //Console.WriteLine("_axisValue:" + _axisValue);
-                        //Console.WriteLine(strBaseData);
+                        if (isDegree)
+                        {
+                            if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+                            {
+                                Interaction.MsgBox("Base file does not exist. It must be unselected or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                                continue; //uncomment this return statment.
+                            }
+                            //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
+                            //Val = float.Parse(strData[i][3 + _axisValue]);
 
-                        float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
+                            float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
 
-                        //the Val variable in below line was named as Val then i have changed it to Val_deg
-                        Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
-                        //Console.WriteLine(Val_deg);
+                            //the Val variable in below line was named as Val then i have changed it to Val_deg
+                            Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                            //Console.WriteLine(Val_deg);
+                            float Val_abs = Val_base - Val_deg;
+                            // Round Val_abs to two decimal places
+                            //Val_abs = (float)Math.Round(Val_abs, 2);
 
-                        float Val_abs = Val_base - Val_deg;
-                        // Round Val_abs to two decimal places
-                        //Val_abs = (float)Math.Round(Val_abs, 2);
-
-                        // Convert Val_deg to Val_mm using the formula
-                        //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
-                        float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
-                        // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
-                        Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
-
-                        //Console.WriteLine(Val_abs_mm);
-
-                        /*if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Absolute", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)                    {
-                            Val += absVal;
-                            absVal = Val;
+                            // Convert Val_deg to Val_mm using the formula
+                            //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
+                            float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
+                            // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
+                            Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
+                            //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
+                            float yValue = -float.Parse(strData[i][2]);
+                            lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
+                            Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");
                         }
-                        else if (CultureInfo.CurrentCulture.CompareInfo.Compare(tbGraphType.Text, "Deviation", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
+                        else
                         {
-                            Val += absVal;
-                            absVal = Val;
-                            Val2 = (float.Parse(strBaseData[i][1 + _axisValue]) - float.Parse(strBaseData[i][2 + _axisValue])) / 2f;
-                            Val2 += absVal2;
-                            absVal2 = Val2;
-                            Val = absVal - absVal2;
-                        }*/
-
-                        /*if (Math.Ceiling((double)Math.Abs(Val)) > maxX)
-                        {
-                            maxX = Math.Ceiling((double)Math.Abs(Val));
-                        }*/
-
-                        //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
-
-                        float yValue = -float.Parse(strData[i][2]);
-
-                        lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
-
-                        // Print values to the console
-                        Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");                        
+                            float Val = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                            Console.WriteLine(Val);
+                            lineSeries.Values.Add(new ObservablePoint((double)Val, (double)-float.Parse(strData[i][2])));
+                        }
                     }
                     catch (IndexOutOfRangeException ex)
                     {
-                        // Handle the exception
-                        //Console.WriteLine($"An error occurred: {ex.Message}");
                         MessageBox.Show($"Error: Index was outside the bounds of the array for file {"(" + strFile + ")"} . Please check if file {"(" + strFile + ")"}  contains the all the sensors data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         //MessageBox.Show($"If data discrepancies occur, kindly contact the support to report.", "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -1003,24 +806,11 @@ namespace InclinoRS485
                 XAxis.MinValue = -maxX;
                 XAxis.MaxValue = maxX;
 
-                /*//old comments
-                // set the inverted mapping...
-                // lineSeries.Configuration = invertedYMapper*/
-
-
+       
                 if (maxX > 150d)
                     XAxis.Separator.Step = 40d;
 
-                seriesCollection.Add(lineSeries);
-
-                /*//old comments
-                // correct the labels
-                // XAxis.LabelFormatter = Function(x) (x * -1).ToString() & "m"
-
-                // Dim tooltip = New DefaultTooltip With {
-                // .SelectionMode = TooltipSelectionMode.OnlySender
-                // }
-                // CartesianChart1.DataTooltip = tooltip*/
+                seriesCollection.Add(lineSeries);             
 
                 // Set labels
                 switch (cnt)
@@ -1336,11 +1126,11 @@ namespace InclinoRS485
             {
                 if (CultureInfo.CurrentCulture.CompareInfo.Compare(listBH[bhIndex].BaseFile ?? "", lstBoreholes.Items[e.Index].ToString() ?? "", CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth) == 0)
                 {
-                    myBrush = System.Drawing.Brushes.Red;
+                    myBrush = System.Drawing.Brushes.OrangeRed;
                 }
                 else
                 {
-                    myBrush = System.Drawing.Brushes.LightYellow;
+                    myBrush = System.Drawing.Brushes.Black;
                 }
             }
 
@@ -1426,7 +1216,7 @@ namespace InclinoRS485
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
             {
                 //Interaction.MsgBox("No base file selected for this borehole. Go back and select a base file to view deviation.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                DisplayGraph();
+                DisplayGraph(); //display graph in mm 
                 return;
             }
 
@@ -1435,14 +1225,14 @@ namespace InclinoRS485
             {
                 // Handle the 'deg' state
                 MessageBox.Show($"showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Console.WriteLine("Showing the graph in Degree");
+                DisplayGraph(true);
             }
             else
             {
-                MessageBox.Show($"  showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Handle the 'mm' state
-                Console.WriteLine("Showing the graph in mm");
-                // ..
+                DisplayGraph();
+                
             }
         }
     }

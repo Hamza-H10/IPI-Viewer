@@ -211,7 +211,7 @@
   <ItemGroup>
     <Content Include="a41r1-uio14-003.ico" />
     <Content Include="x64\SQLite.Interop.dll" />
-    <Content Include="x86\SQLite.Interop.dll" />
+    <Content Include="x84\SQLite.Interop.dll" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
