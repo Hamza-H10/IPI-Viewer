@@ -88,7 +88,20 @@ namespace InclinoRS485
             DataGridView1.Visible = false;
             ToolStrip2.Enabled = false;
             //toolStripSplitButton1.Enabled = false;
-           
+
+
+            // Reset the state
+            //isDegrees = false; // or true, depending on what you consider the initial state
+
+            // Reset properties - Update the button text, color based on the reset state
+            //toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
+            toolStripSplitButton1.Text = null;
+            toolStripSplitButton1.BackgroundImage = null; // or set to initial image
+            toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
+            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan; // or set to initial color
+
+            // Reset other properties and states as needed...
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -301,8 +314,9 @@ namespace InclinoRS485
                 string formattedDateForOrdering = subFileDate.ToString("yyyyMMdd"); // Format for serial-wise ordering
                 string formattedDateForFilename = subFileDate.ToString("dd-MM-yyyy"); // Format for filename readability
                 //string subFileName = $"{formattedDateForFilename} {maxTimePart}.csv"; // You can change the file extension as needed
-                string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxHourPart} ].csv";
-                
+                //string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxHourPart} ].csv";
+                string subFileName = $"{formattedDateForOrdering}( {formattedDateForFilename} {maxHourPart} ).csv";
+
                 if (System.IO.File.Exists(subFileName))
                 {
                     cntSubRepeat = (short)(cntSubRepeat + 1);
@@ -646,7 +660,7 @@ namespace InclinoRS485
             // Create X-axis with label formatter, range, and styling
             var XAxis = new Axis()
             {
-                Title = "Displacement (mm)",
+                Title = "Displacement",
                 LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
 
                 MaxValue = 60d,
@@ -688,49 +702,61 @@ namespace InclinoRS485
             tbAxisX.Enabled = true;
             tbAxisY.Enabled = true;
             tbZoom.Enabled = true;
-            
+
 
             //-----------------------------------------------------
-             
+
             // Check if a base file is selected
-            if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+            //if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
+            //{
+            //    //if () 
+            //    //{ Interaction.MsgBox("Base is not selected. Please view graph in MM", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+            //    //}
+            //    return;
+            //}
+
+            //-------------------------------------------//check here the baseFile path here 
+            string dirPath = "";
+            string baseFile = "";
+            string strFileBase = "";
+            bool isBaseFilePresent = false; // flag variable
+            //string strBaseData = "";
+
+            try
             {
-                //if () 
-                //{ Interaction.MsgBox("Base is not selected. Please view graph in MM", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                //}
-                return;
+                dirPath = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected);
+                baseFile = listBH[bhIndex].BaseFile;
+
+                if (!string.IsNullOrEmpty(baseFile)) // check if baseFile is not empty
+                {
+                    strFileBase = Path.Combine(dirPath, baseFile);
+                    isBaseFilePresent = true; // update flag variable
+
+                    // Read the base data from the base file
+                    strBaseData = GlobalCode.ReadCSVFile(ref strFileBase);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: {0}", ex.Message);
             }
 
-//-------------------------------------------//check here the baseFile path here 
-            //string dirPath = "";
-            //string baseFile = "";
-            //string strFileBase = "";
 
-            //try
-            //{
-            //    dirPath = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected);
-            //    baseFile = listBH[bhIndex].BaseFile;
-            //    strFileBase = Path.Combine(dirPath, baseFile);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("An error occurred: {0}", ex.Message);
-            //}
-//----------------------------------------------
+            //----------------------------------------------
 
             // Get the path to the base file
-            string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+            //string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
 
             //below code was implemented for the deviate
             //Check if the base file exists
-            if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
-            {
-                //Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                //return; //uncomment this return statment.
-            }
+            //if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+            //{
+            //    //Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+            //    //return; //uncomment this return statment.
+            //}
 
             // Read the base data from the base file 
-            strBaseData = GlobalCode.ReadCSVFile(ref strFileBase); //error - happening on this line
+            //strBaseData = GlobalCode.ReadCSVFile(ref strFileBase); //error - happening on this line
 
             // #ToDo: It will not read the data if basefile does not exist, make a logic here to bypass this situation
             //---------------------------------------------------------
@@ -781,7 +807,7 @@ namespace InclinoRS485
                             if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
                             {
                                 Interaction.MsgBox("Base file does not exist. It must be unselected or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                                continue; //uncomment this return statment.
+                                return; //uncomment this return statment.
                             }
                             //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
                             //Val = float.Parse(strData[i][3 + _axisValue]);
@@ -1271,7 +1297,7 @@ namespace InclinoRS485
                 string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
                 if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
                 {
-                    Interaction.MsgBox("Base file does not exist. It must have been deleted. Please select another file as a base.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                    Interaction.MsgBox("Base file does not exist. It must have been removed. Please select any file as a base file.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                     //return; //uncomment this return statment.
                 }
                 else
@@ -1300,6 +1326,28 @@ namespace InclinoRS485
             toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan; // or set to initial color
 
             // Reset other properties and states as needed...
+        }
+
+        private void degToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Get the path to the base file
+            string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+            if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+            {
+                Interaction.MsgBox("Base file does not exist. It must have been removed. Please select any file as a base file.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                //return; //uncomment this return statment.
+            }
+            else
+            {// Handle the 'deg' state
+               
+                DisplayGraph(true);
+            }
+
+        }
+
+        private void mMToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DisplayGraph();
         }
     }
 }
