@@ -658,9 +658,11 @@ namespace InclinoRS485
                 }
             };
             // Create X-axis with label formatter, range, and styling
+            
             var XAxis = new Axis()
             {
-                Title = "Displacement",
+                Title = isDegree ? "Displacement (deg)" : "Displacement (mm)",
+
                 LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
 
                 MaxValue = 60d,
@@ -806,7 +808,7 @@ namespace InclinoRS485
                         {
                             if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
                             {
-                                Interaction.MsgBox("Base file does not exist. It must be unselected or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                                Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
                                 return; //uncomment this return statment.
                             }
                             //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
@@ -1334,8 +1336,7 @@ namespace InclinoRS485
             string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
             if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
             {
-                Interaction.MsgBox("Base file does not exist. It must have been removed. Please select any file as a base file.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                //return; //uncomment this return statment.
+                Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");                //return; //uncomment this return statment.
             }
             else
             {// Handle the 'deg' state
