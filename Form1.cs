@@ -621,6 +621,7 @@ namespace InclinoRS485
                 tbAxisX.Enabled = false;
                 tbAxisY.Enabled = false;
                 tbZoom.Enabled = false;
+                toolStripSplitButton1.Enabled = false;
                 //tbGraphType.Enabled = false;
             }
         }
@@ -975,6 +976,8 @@ namespace InclinoRS485
 
         private void tbViewGraph_Click(object sender, EventArgs e)
         {
+            toolStripSplitButton1.Enabled = true;
+            ResetToolStripSplitButton1();
             if (boreHoleSelected == 0)
                 return;
             if (lstBoreholes.SelectedItems.Count == 0)
@@ -1134,6 +1137,8 @@ namespace InclinoRS485
             ResetLabels();
             DataGridView1.Visible = false;
             CartesianChart1.Visible = false;
+            ResetToolStripSplitButton1();
+            toolStripSplitButton1.Enabled = false;
             DisplayReport();
         }
         //private void tbBaseFile_Click(object sender, EventArgs e)
@@ -1295,6 +1300,11 @@ namespace InclinoRS485
             // Handle the behavior based on the current state
             if (isDegrees)
             {
+                // Reset labels and hide chart and DataGridView
+                ResetLabels();
+                CartesianChart1.Visible = false;
+                DataGridView1.Visible = false;
+                //ToolStrip2.Enabled = false;
                 // Get the path to the base file
                 string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
                 if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
@@ -1304,13 +1314,13 @@ namespace InclinoRS485
                 }
                 else
                 {// Handle the 'deg' state
-                    MessageBox.Show($"Showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //MessageBox.Show($"Showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     DisplayGraph(true);
                 }
             }
             else
             {
-                MessageBox.Show($"Showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //MessageBox.Show($"Showing graph in mm", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Handle the 'mm' state
                 DisplayGraph();
                 
@@ -1326,7 +1336,7 @@ namespace InclinoRS485
             toolStripSplitButton1.BackgroundImage = null; // or set to initial image
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
             toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan; // or set to initial color
-
+            
             // Reset other properties and states as needed...
         }
 
@@ -1339,12 +1349,11 @@ namespace InclinoRS485
                 Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");                //return; //uncomment this return statment.
             }
             else
-            {// Handle the 'deg' state
-               
+            {// Handle the 'deg' state        
                 DisplayGraph(true);
             }
-
         }
+
 
         private void mMToolStripMenuItem_Click(object sender, EventArgs e)
         {
