@@ -1,4 +1,5 @@
-﻿using LiveCharts;
+﻿using InclinoView.My.Resources;
+using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using Microsoft.VisualBasic;
@@ -317,19 +318,23 @@ namespace InclinoRS485
                 //string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxHourPart} ].csv";
                 string subFileName = $"{formattedDateForOrdering}( {formattedDateForFilename} {maxHourPart} ).csv";
 
-                if (System.IO.File.Exists(subFileName))
-                {
-                    cntSubRepeat = (short)(cntSubRepeat + 1);
-                }
-
                 // Construct the destination path for the sub-file in the borehole directory
                 string destinationPath = Path.Combine(baseDirectory, subFileName);
 
-                // Save the sub-file to the borehole directory
-                File.WriteAllLines(destinationPath, rows);
+                // Check if the file already exists in the destination path
+                if (System.IO.File.Exists(destinationPath))
+                {
+                    // If the file exists, increment cntSubRepeat
+                    cntSubRepeat = (short)(cntSubRepeat + 1);
+                }
+                else
+                {
+                    // If the file does not exist, save the sub-file to the borehole directory
+                    File.WriteAllLines(destinationPath, rows);
 
-                // Increment the sub-file count
-                subFileCount++;
+                    // Increment the sub-file count
+                    subFileCount++;
+                }
 
                 // Read the contents of the sub-file and print the rows
                 /*string[] fileContents = File.ReadAllLines(destinationPath);
@@ -340,12 +345,20 @@ namespace InclinoRS485
             }
             // Print the total number of sub-files created
             Console.WriteLine($"Total number of sub-files created: {subFileCount}");
-            if (subFileCount > 0)
-                msgString += subFileCount + " Subfiles have been created and added to the InclinoRS485 successfully." + Environment.NewLine;
-            if (cntSubRepeat > 0)
-                msgString += cntSubRepeat + " Files were already present in the directory, hence ignored";
+            //string msgString = string.Empty;
 
-            Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
+
+            if (cntSubRepeat > 0)
+            {
+                msgString += $"{cntSubRepeat} Files were already present in the directory, hence ignored.\n";
+            }
+
+            if (subFileCount > 0)
+            {
+                msgString += $"{subFileCount} Subfiles have been created and added to the InclinoRS485 successfully.\n";
+            }
+
+            MessageBox.Show(msgString, "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void tbBack_Click(object sender, EventArgs e)
@@ -602,14 +615,14 @@ namespace InclinoRS485
                 // Change the background color of the rows
                 DataGridView1.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
                 //DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
-                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightSteelBlue;
+                DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightCyan;
                 //----------------------------
 
                 // Change the background color of the entire DataGridView
                 DataGridView1.BackgroundColor = Color.WhiteSmoke;
 
                 // Change the background color of selected cells
-                DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Red;
+                DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Pink;
                 DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
 
@@ -628,6 +641,9 @@ namespace InclinoRS485
         //----------------------------------------------------------------------------------------------------------------------
         private void DisplayGraph(bool is_MM = false)
         {
+            toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
+
             // Initialize variables
             var cnt = default(short); // Counter for labels
             double maxX = 50.0d; // Maximum X value for the chart
@@ -1217,7 +1233,7 @@ namespace InclinoRS485
 
             // Define the default color of the brush as black.
             //var myBrush = System.Drawing.Brushes.Beige;
-            var myBrush = System.Drawing.Brushes.DarkCyan;
+            var myBrush = System.Drawing.Brushes.IndianRed;
 
             if (bhIndex >= 0)
             {
@@ -1227,7 +1243,7 @@ namespace InclinoRS485
                 }
                 else
                 {
-                    myBrush = System.Drawing.Brushes.Black;
+                    myBrush = System.Drawing.Brushes.DarkTurquoise;
                 }
             }
 
@@ -1238,8 +1254,7 @@ namespace InclinoRS485
             // If the ListBox has focus, draw a focus rectangle around  _ 
             // the selected item.
             e.DrawFocusRectangle();
-            
-            
+
         }
 
 
@@ -1388,12 +1403,22 @@ namespace InclinoRS485
 
         private void mMToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DisplayGraph(true);
-            //toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
-            
-            toolStripSplitButton1.Text = is_MM ? "DEG" : "MM";
-            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
             ResetToolStripSplitButton1();
+            //if (is_MM) {
+            //    //toolStripSplitButton1.Text = is_MM ? "DEG" : "MM";
+            //    toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            //    toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
+            //    ResetToolStripSplitButton1();
+            //}
+            DisplayGraph(true);
+            
+            
+            
+        }
+
+        private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }
