@@ -35,9 +35,9 @@ namespace InclinoRS485
         [DebuggerStepThrough()]
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.SplitContainer1 = new System.Windows.Forms.SplitContainer();
             this.lstBoreholes = new System.Windows.Forms.ListBox();
             this.ToolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -113,7 +113,7 @@ namespace InclinoRS485
             // 
             // lstBoreholes
             // 
-            this.lstBoreholes.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.lstBoreholes.BackColor = System.Drawing.SystemColors.ControlLight;
             this.lstBoreholes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstBoreholes.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lstBoreholes.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -301,7 +301,7 @@ namespace InclinoRS485
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.Color.Red;
-            this.label8.Location = new System.Drawing.Point(551, 34);
+            this.label8.Location = new System.Drawing.Point(631, 31);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(50, 16);
             this.label8.TabIndex = 11;
@@ -312,7 +312,7 @@ namespace InclinoRS485
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold);
             this.label7.ForeColor = System.Drawing.Color.LightCoral;
-            this.label7.Location = new System.Drawing.Point(551, 12);
+            this.label7.Location = new System.Drawing.Point(631, 12);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(50, 16);
             this.label7.TabIndex = 10;
@@ -367,7 +367,7 @@ namespace InclinoRS485
             this.Label4.AutoSize = true;
             this.Label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Label4.ForeColor = System.Drawing.Color.DarkSlateBlue;
-            this.Label4.Location = new System.Drawing.Point(413, 12);
+            this.Label4.Location = new System.Drawing.Point(444, 12);
             this.Label4.Name = "Label4";
             this.Label4.Size = new System.Drawing.Size(54, 16);
             this.Label4.TabIndex = 5;
@@ -378,7 +378,7 @@ namespace InclinoRS485
             this.Label5.AutoSize = true;
             this.Label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Label5.ForeColor = System.Drawing.Color.Navy;
-            this.Label5.Location = new System.Drawing.Point(413, 34);
+            this.Label5.Location = new System.Drawing.Point(444, 34);
             this.Label5.Name = "Label5";
             this.Label5.Size = new System.Drawing.Size(54, 16);
             this.Label5.TabIndex = 4;
@@ -389,7 +389,7 @@ namespace InclinoRS485
             this.Label6.AutoSize = true;
             this.Label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Label6.ForeColor = System.Drawing.Color.Maroon;
-            this.Label6.Location = new System.Drawing.Point(413, 56);
+            this.Label6.Location = new System.Drawing.Point(444, 56);
             this.Label6.Name = "Label6";
             this.Label6.Size = new System.Drawing.Size(54, 16);
             this.Label6.TabIndex = 3;
@@ -522,14 +522,14 @@ namespace InclinoRS485
             // degToolStripMenuItem
             // 
             this.degToolStripMenuItem.Name = "degToolStripMenuItem";
-            this.degToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.degToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
             this.degToolStripMenuItem.Text = "Deg";
             this.degToolStripMenuItem.Click += new System.EventHandler(this.degToolStripMenuItem_Click);
             // 
             // mMToolStripMenuItem
             // 
             this.mMToolStripMenuItem.Name = "mMToolStripMenuItem";
-            this.mMToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.mMToolStripMenuItem.Size = new System.Drawing.Size(96, 22);
             this.mMToolStripMenuItem.Text = "MM";
             this.mMToolStripMenuItem.Click += new System.EventHandler(this.mMToolStripMenuItem_Click);
             // 

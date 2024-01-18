@@ -91,17 +91,17 @@ namespace InclinoRS485
 
 
             // Reset the state
-            //isDegrees = false; // or true, depending on what you consider the initial state
+            //is_MM = false; // or true, depending on what you consider the initial state
 
             // Reset properties - Update the button text, color based on the reset state
-            //toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
+            //toolStripSplitButton1.Text = is_MM ? "MM": "DEG";
             toolStripSplitButton1.Text = null;
             toolStripSplitButton1.BackgroundImage = null; // or set to initial image
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
-            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan; // or set to initial color
+            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen; // or set to initial color
 
             // Reset other properties and states as needed...
-            
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -626,7 +626,7 @@ namespace InclinoRS485
             }
         }
         //----------------------------------------------------------------------------------------------------------------------
-        private void DisplayGraph(bool isDegree = false)
+        private void DisplayGraph(bool is_MM = false)
         {
             // Initialize variables
             var cnt = default(short); // Counter for labels
@@ -662,7 +662,7 @@ namespace InclinoRS485
             
             var XAxis = new Axis()
             {
-                Title = isDegree ? "Displacement (deg)" : "Displacement (mm)",
+                Title = is_MM ? "Displacement (mm)" : "Displacement (deg)",
 
                 LabelFormatter = new Func<double, string>(y => Math.Round(y, 2).ToString()),
 
@@ -805,39 +805,58 @@ namespace InclinoRS485
                         {
                             MessageBox.Show($"File {"( " + strFile + " )"}  do not contain required sensors data. Please check file {"( " + strFile + " )"}. Graph may not be formed.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-                        if (isDegree)
+                        if (is_MM)
                         {
-                            if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+                            if (System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
                             {
-                                Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                                return; //uncomment this return statment.
+                                //Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                                //return; 
+
+                                //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
+                                //Val = float.Parse(strData[i][3 + _axisValue]);
+
+                                float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
+
+                                //the Val variable in below line was named as Val then i have changed it to Val_deg
+                                Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                                Console.WriteLine("val_deg: " + Val_deg);
+
+                                float Val_abs = Val_base - Val_deg;
+                                Console.WriteLine("val_abs: " + Val_abs);
+                                // Round Val_abs to two decimal places
+                                // Val_abs = (float)Math.Round(Val_abs, 2);
+
+                                // Convert Val_deg to Val_mm using the formula
+                                //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
+                                float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
+                                // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
+                                Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
+                                Console.WriteLine("val_abs_mm: " + Val_abs_mm);
+                                //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
+                                float yValue = -float.Parse(strData[i][2]);
+                                lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
+                                Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");
                             }
-                            //Val = (float.Parse(strData[i][3 + _axisValue]) - float.Parse(strData[i][2 + _axisValue])) / 2f;                 
-                            //Val = float.Parse(strData[i][3 + _axisValue]);
+                            else
+                            {
+                                //Interaction.MsgBox("Base file does not exist. showing MM graph without absolute values. Please.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
 
-                            float Val_base = float.TryParse(strBaseData[i][3 + _axisValue], out float parsedValueBase) ? parsedValueBase : 0.0f;
-
-                            //the Val variable in below line was named as Val then i have changed it to Val_deg
-                            Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
-                            //Console.WriteLine(Val_deg);
-                            float Val_abs = Val_base - Val_deg;
-                            // Round Val_abs to two decimal places
-                            //Val_abs = (float)Math.Round(Val_abs, 2);
-
-                            // Convert Val_deg to Val_mm using the formula
-                            //float Val_abs_mm = Val_abs_deg * (float)(Math.PI / 180) * 6000;
-                            float Val_abs_mm = Val_abs * (float)(3.14 / 180) * 460;
-                            // Round Val_mm to one digit before the decimal point and two decimal digits after the decimal point
-                            Val_abs_mm = (float)Math.Round(Val_abs_mm, 2);
-                            //lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)-float.Parse(strData[i][2]))); //lineSeries.Values: This represents the collection of data points for the lineSeries. It is of type ChartValues<ObservablePoint>.
-                            float yValue = -float.Parse(strData[i][2]);
-                            lineSeries.Values.Add(new ObservablePoint((double)Val_abs_mm, (double)yValue));
-                            Console.WriteLine($"Val_abs_mm: {Val_abs_mm}, yValue: {yValue}");
+                                {
+                                    Val_deg = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
+                                    Console.WriteLine("val_deg: " + Val_deg);
+                                    float Val_mm = Val_deg * (float)(3.14 / 180) * 460;
+                                    Val_mm = (float)Math.Round(Val_mm, 2);
+                                    Console.WriteLine("val_mm: " + Val_mm);
+                                    float yValue = -float.Parse(strData[i][2]);
+                                    lineSeries.Values.Add(new ObservablePoint((double)Val_mm, (double)yValue));
+                                    Console.WriteLine($"Val_mm: {Val_mm}, yValue: {yValue}");
+                                }
+                            }
                         }
                         else
                         {
                             float Val = float.TryParse(strData[i][3 + _axisValue], out float parsedValue) ? parsedValue : 0.0f;
-                            Console.WriteLine(Val);
+                            Console.WriteLine("Val: "+Val);
                             lineSeries.Values.Add(new ObservablePoint((double)Val, (double)-float.Parse(strData[i][2])));
                         }
                     }
@@ -938,13 +957,13 @@ namespace InclinoRS485
             {
                 tbAxisY.Checked = false;
                 _axisValue = 0;
-                if (isDegrees) // Check if 'isDegrees' is true
+                if (is_MM) // Check if 'is_MM' is true
                 {
-                    DisplayGraph(true); // If 'isDegrees' is true, call DisplayGraph with true
+                    DisplayGraph(true); // If 'is_MM' is true, call DisplayGraph with true
                 }
                 else
                 {
-                    DisplayGraph(); // If 'isDegrees' is false, call DisplayGraph with no parameters
+                    DisplayGraph(); // If 'is_MM' is false, call DisplayGraph with no parameters
                 }
             }
             else
@@ -959,13 +978,13 @@ namespace InclinoRS485
             {
                 tbAxisX.Checked = false;
                 _axisValue = 1;
-                if (isDegrees) // Check if 'isDegrees' is true
+                if (is_MM) // Check if 'is_MM' is true
                 {
-                    DisplayGraph(true); // If 'isDegrees' is true, call DisplayGraph with true
+                    DisplayGraph(true); // If 'is_MM' is true, call DisplayGraph with true
                 }
                 else
                 {
-                    DisplayGraph(); // If 'isDegrees' is false, call DisplayGraph with no parameters
+                    DisplayGraph(); // If 'is_MM' is false, call DisplayGraph with no parameters
                 }
             }
             else
@@ -1197,7 +1216,8 @@ namespace InclinoRS485
                 return;
 
             // Define the default color of the brush as black.
-            var myBrush = System.Drawing.Brushes.Beige;
+            //var myBrush = System.Drawing.Brushes.Beige;
+            var myBrush = System.Drawing.Brushes.DarkCyan;
 
             if (bhIndex >= 0)
             {
@@ -1277,17 +1297,17 @@ namespace InclinoRS485
         }
 
         // Initial state
-        bool isDegrees = true;
+        bool is_MM = true;
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
             // Toggle the state
-            isDegrees = !isDegrees;
+            is_MM = !is_MM;
 
             // Properties - Update the button text,color based on the current state
-            toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
+            toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
             toolStripSplitButton1.BackgroundImage = new Bitmap(1, 1);
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
-            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan;//previously LightBlue
+            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;//previously LightBlue instead of Cyan
 
             // Check if a base file is selected
             if (listBH[bhIndex].BaseFile is null || string.IsNullOrEmpty(listBH[bhIndex].BaseFile))
@@ -1298,7 +1318,7 @@ namespace InclinoRS485
             }
 
             // Handle the behavior based on the current state
-            if (isDegrees)
+            if (is_MM)
             {
                 // Reset labels and hide chart and DataGridView
                 ResetLabels();
@@ -1307,16 +1327,19 @@ namespace InclinoRS485
                 //ToolStrip2.Enabled = false;
                 // Get the path to the base file
                 string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
-                if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
-                {
-                    Interaction.MsgBox("Base file does not exist. It must have been removed. Please select any file as a base file.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
-                    //return; //uncomment this return statment.
-                }
-                else
-                {// Handle the 'deg' state
-                    //MessageBox.Show($"Showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    DisplayGraph(true);
-                }
+
+                //if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+                //{
+                //    Interaction.MsgBox("Base file does not exist. It must have been removed. Please select any file as a base file.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");
+                //    //return; //uncomment this return statment.
+                //}
+                //else
+                //{// Handle the 'deg' state
+                //    //MessageBox.Show($"Showing graph in Degree", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //    DisplayGraph(true);
+                //}
+
+                DisplayGraph(true);
             }
             else
             {
@@ -1329,35 +1352,48 @@ namespace InclinoRS485
         private void ResetToolStripSplitButton1()
         {
             // Reset the state
-            isDegrees = false; // or true, depending on what you consider the initial state
+            is_MM = false; // or true, depending on what you consider the initial state
 
             // Reset properties - Update the button text, color based on the reset state
-            toolStripSplitButton1.Text = isDegrees ? "DEG" : "MM";
+            toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
             toolStripSplitButton1.BackgroundImage = null; // or set to initial image
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
-            toolStripSplitButton1.BackColor = isDegrees ? Color.LightGreen : Color.Cyan; // or set to initial color
-            
+            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen; // or set to initial color
+
             // Reset other properties and states as needed...
         }
 
         private void degToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Get the path to the base file
-            string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
-            if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
-            {
-                Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");                //return; //uncomment this return statment.
-            }
-            else
-            {// Handle the 'deg' state        
-                DisplayGraph(true);
-            }
+            //string strFileBase = GlobalCode.GetBoreholeDirectory(ref boreHoleSelected) + @"\" + listBH[bhIndex].BaseFile;
+            //if (!System.IO.File.Exists(strFileBase))//if making the BaseFile concrete function then uncomment this.
+            //{
+            //    Interaction.MsgBox("Base file does not exist. It may have been removed or deleted .Please select another file as a base to view Degree Graph.", Constants.vbOKOnly | Constants.vbExclamation, "Graph");                //return; //uncomment this return statment.
+            //}
+            //else
+            //{// Handle the 'deg' state        
+            //    DisplayGraph(true);
+            //    toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            //    toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
+            //}
+
+            DisplayGraph();
+            toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            //toolStripSplitButton1.Text = is_MM ? "DEG" : "MM";
+            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
+            ResetToolStripSplitButton1();
         }
 
 
         private void mMToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DisplayGraph();
+            DisplayGraph(true);
+            //toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            
+            toolStripSplitButton1.Text = is_MM ? "DEG" : "MM";
+            toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
+            ResetToolStripSplitButton1();
         }
     }
 }
