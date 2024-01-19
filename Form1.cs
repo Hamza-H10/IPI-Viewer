@@ -17,6 +17,8 @@ using System.Windows.Forms;
 
 
 
+
+
 namespace InclinoRS485
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace InclinoRS485
     /// </summary>
     /// <author>Hamza</author>
     /// <date>2023-09-10</date>
-    public partial class Form1
+    public partial class Form1 
     {
         // Class-level fields for managing data
         private List<GlobalCode.BoreHole> listBH;
@@ -42,6 +44,7 @@ namespace InclinoRS485
         public Form1()
         {
             InitializeComponent();
+            this.AutoScaleMode = AutoScaleMode.Dpi;//for scalability issues in different DPI, windows 10,11 
         }
 
         // Reloads the list of boreholes in the user interface
@@ -141,7 +144,8 @@ namespace InclinoRS485
 
             // Prepare a message string to summarize the import process
             string msgString = "Import Summary:" + Environment.NewLine;
-
+            string msgStringImport = "Import Info:" + Environment.NewLine;
+            
             // Check if the user selected files using the OpenFileDialog
             if (OpenFileDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -167,13 +171,27 @@ namespace InclinoRS485
                         {
                             // Catch 4 parameters for the new borehole
                             // Parse the borehole number, directory name, and depth from the CSV data
-                            short borehole_num;
-                            float depth;
-                            string strDirName;
+                            //short borehole_num;
+                            //float depth;
+                            //string strDirName;
 
-                            borehole_num = short.Parse(strData[0][1]);
-                            strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);
-                            strFileNew = strDirName + @"\" + strFileNew;
+                            short borehole_num = 0;
+                            float depth = 0.0f;
+                            string strDirName = string.Empty;
+
+                            try
+                            {
+                                borehole_num = short.Parse(strData[0][1]);
+                                strDirName = GlobalCode.GetBoreholeDirectory(ref borehole_num);
+                                strFileNew = strDirName + @"\" + strFileNew;
+                            }
+                            catch (Exception ex)
+                            {
+                                // Display the error message to the user
+                                MessageBox.Show("File format is not correct. Please check the format of file data. Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return; // Stop code execution
+
+                            }
 
 
                             // Check if the file already exists (if imported previously)
@@ -186,7 +204,7 @@ namespace InclinoRS485
                                 // Check if the directory exists; if not, create it
                                 if (!System.IO.Directory.Exists(strDirName))
                                 {
-                                    System.IO.Directory.CreateDirectory(strDirName);
+                                    System.IO.Directory.CreateDirectory(strDirName); //path cannot be an empty string 
                                 }
 
                                 // Copy the selected file to the destination directory
@@ -203,26 +221,34 @@ namespace InclinoRS485
                                     GlobalCode.UpdateBorehole(ref bh);
                                 }
 
+                                cnt = (short)(cnt + 1);
+                                if (cnt > 0)
+                                msgStringImport += "Imported " + cnt + " CSV file(s) to the InclinoRS485.\n";
+                                MessageBox.Show(msgStringImport, "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                                 SplitCSVDataIntoSubFiles(strData, strDirName);
 
                                 // Reload the list
                                 ReloadList();
-                                cnt = (short)(cnt + 1);
+                                
                             }
                         }
                     }
                 }
                 // Prepare a summary message with import results
-                if (cnt > 0)
-                    msgString += "You have added " + cnt + " CSV file(s) to the InclinoRS485 successfully." + Constants.vbCrLf;//Addition - no. of new subfiles have been created, no. of subfiles were already in the borehole directory,  
+
                 if (cntError > 0)
-                    msgString += cntError + " file(s) were found to be incorrect format." + Constants.vbCrLf;
+                    msgString += cntError + " file(s) were found to be incorrect format.\n";
                 if (cntRepeat > 0)
-                    msgString += cntRepeat + " file(s) were already imported into the application, hence ignored." + Constants.vbCrLf;
+                    msgString += cntRepeat + " file(s) were already imported into the application, hence ignored.\n";
 
                 // Display the summary message to the user
                 Console.WriteLine(msgString);
-                Interaction.MsgBox(msgString, MsgBoxStyle.OkOnly | MsgBoxStyle.Information, "Import");
+
+                // Show the MessageBox only if there are errors or repeated files
+                if (cntError > 0 || cntRepeat > 0)
+                    MessageBox.Show(msgString, "Import", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             }
         }
         private void SplitCSVDataIntoSubFiles(string[][] strData, string strDirName)
@@ -316,7 +342,7 @@ namespace InclinoRS485
                 string formattedDateForFilename = subFileDate.ToString("dd-MM-yyyy"); // Format for filename readability
                 //string subFileName = $"{formattedDateForFilename} {maxTimePart}.csv"; // You can change the file extension as needed
                 //string subFileName = $"{formattedDateForOrdering}[ {formattedDateForFilename} ] [ {maxHourPart} ].csv";
-                string subFileName = $"{formattedDateForOrdering}( {formattedDateForFilename} {maxHourPart} ).csv";
+                string subFileName = $"{formattedDateForOrdering}(  {formattedDateForFilename} {maxHourPart}  ).csv";
 
                 // Construct the destination path for the sub-file in the borehole directory
                 string destinationPath = Path.Combine(baseDirectory, subFileName);
@@ -350,7 +376,7 @@ namespace InclinoRS485
 
             if (cntSubRepeat > 0)
             {
-                msgString += $"{cntSubRepeat} Files were already present in the directory, hence ignored.\n";
+                msgString += $"{cntSubRepeat} SubFiles were already present in the directory, hence ignored.\n";
             }
 
             if (subFileCount > 0)
@@ -614,6 +640,7 @@ namespace InclinoRS485
                 //---------------------------
                 // Change the background color of the rows
                 DataGridView1.RowsDefaultCellStyle.BackColor = Color.WhiteSmoke;
+
                 //DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
                 DataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightCyan;
                 //----------------------------
@@ -622,7 +649,7 @@ namespace InclinoRS485
                 DataGridView1.BackgroundColor = Color.WhiteSmoke;
 
                 // Change the background color of selected cells
-                DataGridView1.DefaultCellStyle.SelectionBackColor = Color.Pink;
+                DataGridView1.DefaultCellStyle.SelectionBackColor = Color.LightCoral;
                 DataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
 
@@ -1223,7 +1250,7 @@ namespace InclinoRS485
         }
 
 
-
+        
         private void ListBox1_DrawItem(object sender, DrawItemEventArgs e)
         {
             // Draw the background of the ListBox control for each item.
@@ -1370,7 +1397,8 @@ namespace InclinoRS485
             is_MM = false; // or true, depending on what you consider the initial state
 
             // Reset properties - Update the button text, color based on the reset state
-            toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            //toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
+            toolStripSplitButton1.Text = null;
             toolStripSplitButton1.BackgroundImage = null; // or set to initial image
             toolStripSplitButton1.BackgroundImageLayout = ImageLayout.None;
             toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen; // or set to initial color
@@ -1392,12 +1420,12 @@ namespace InclinoRS485
             //    toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
             //    toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
             //}
+            ResetToolStripSplitButton1();
 
             DisplayGraph();
             toolStripSplitButton1.Text = is_MM ? "MM" : "DEG";
             //toolStripSplitButton1.Text = is_MM ? "DEG" : "MM";
             toolStripSplitButton1.BackColor = is_MM ? Color.Cyan : Color.LightGreen;
-            ResetToolStripSplitButton1();
         }
 
 

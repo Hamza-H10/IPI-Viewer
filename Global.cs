@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
@@ -224,6 +225,16 @@ namespace InclinoRS485
             //Console.WriteLine("Inside GetBoreholeDirectory");
             return Application.LocalUserAppDataPath + @"\" + bhnum.ToString().PadLeft(2, '0');
             //return myCustomFolderPath + @"\" + bhnum.ToString().PadLeft(2, '0');
+        }
+
+        public static void ScaleFonts(Control control)
+        {
+            float dpiScale = Screen.PrimaryScreen.Bounds.Width / 96.0f; // Use PrimaryScreen.Bounds.Width
+            foreach (Control childControl in control.Controls)
+            {
+                childControl.Font = new Font(childControl.Font.FontFamily, childControl.Font.Size * dpiScale);
+                ScaleFonts(childControl);
+            }
         }
     }
 }
